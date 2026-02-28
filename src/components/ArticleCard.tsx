@@ -221,7 +221,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
                   <circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />
                 </svg>
-                {article.source_name || extractDomain(article.source_url)}
+                {extractDomain(article.link)}
               </span>
               {article.categories.slice(0, 2).map((cat) => (
                 <button
@@ -361,11 +361,9 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
               {cat.name}
             </button>
           ))}
-          {article.source_name && (
-            <span className="text-xs text-brand-muted ml-auto">
-              {article.source_name}
-            </span>
-          )}
+          <span className="text-xs text-brand-muted ml-auto">
+            {extractDomain(article.link)}
+          </span>
         </div>
       </div>
 

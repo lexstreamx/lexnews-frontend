@@ -32,13 +32,17 @@ export default function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [filtersReady, setFiltersReady] = useState(false);
   const initialCategoriesSet = useRef(false);
 
-  // Pre-select user's categories from their LearnWorlds tags
+  // Pre-select user's categories from their LearnWorlds tags, then mark ready
   useEffect(() => {
-    if (user && user.category_slugs.length > 0 && !initialCategoriesSet.current) {
-      setSelectedCategories(user.category_slugs);
-      initialCategoriesSet.current = true;
+    if (user) {
+      if (user.category_slugs.length > 0 && !initialCategoriesSet.current) {
+        setSelectedCategories(user.category_slugs);
+        initialCategoriesSet.current = true;
+      }
+      setFiltersReady(true);
     }
   }, [user]);
 
@@ -90,13 +94,15 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => {
-    if (user) loadFilters();
-  }, [user, loadFilters]);
+  const isLoggedIn = !!user;
 
   useEffect(() => {
-    if (user) loadArticles();
-  }, [user, loadArticles]);
+    if (isLoggedIn) loadFilters();
+  }, [isLoggedIn, loadFilters]);
+
+  useEffect(() => {
+    if (filtersReady) loadArticles();
+  }, [filtersReady, loadArticles]);
 
   // Reset page and close panel when filters change
   useEffect(() => {
