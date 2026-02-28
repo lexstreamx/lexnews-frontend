@@ -91,12 +91,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    loadFilters();
-  }, [loadFilters]);
+    if (user) loadFilters();
+  }, [user, loadFilters]);
 
   useEffect(() => {
-    loadArticles();
-  }, [loadArticles]);
+    if (user) loadArticles();
+  }, [user, loadArticles]);
 
   // Reset page and close panel when filters change
   useEffect(() => {
