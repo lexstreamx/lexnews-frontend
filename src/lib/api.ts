@@ -84,6 +84,14 @@ export async function logout() {
   return res.json();
 }
 
-export function getLoginUrl(): string {
-  return `${API_BASE}/auth/login`;
+export async function loginWithEmail(email: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    ...fetchOpts,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Login failed');
+  return data;
 }
