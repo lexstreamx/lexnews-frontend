@@ -24,6 +24,7 @@ export interface Article {
   link: string;
   description: string;
   content: string;
+  image_url: string | null;
   source_name: string;
   source_url: string;
   published_at: string;
@@ -53,3 +54,5 @@ export interface CategoriesResponse {
 }
 
 export type FeedType = 'all' | 'news' | 'blogpost' | 'judgment' | 'regulatory';
+
+export type ViewMode = 'card' | 'list';

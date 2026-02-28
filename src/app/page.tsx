@@ -6,7 +6,7 @@ import SearchBar from '@/components/SearchBar';
 import FilterBar from '@/components/FilterBar';
 import ArticleCard from '@/components/ArticleCard';
 import { fetchArticles, fetchCategories, refreshFeeds } from '@/lib/api';
-import { Article, Category, FeedType } from '@/types';
+import { Article, Category, FeedType, ViewMode } from '@/types';
 
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -14,6 +14,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // View mode
+  const [viewMode, setViewMode] = useState<ViewMode>('card');
 
   // Filters
   const [feedType, setFeedType] = useState<FeedType>('all');
@@ -23,6 +26,19 @@ export default function Home() {
   const [showSaved, setShowSaved] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  // Load view mode from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('lexnews-view-mode');
+    if (stored === 'card' || stored === 'list') {
+      setViewMode(stored);
+    }
+  }, []);
+
+  function handleViewModeChange(mode: ViewMode) {
+    setViewMode(mode);
+    localStorage.setItem('lexnews-view-mode', mode);
+  }
 
   const loadArticles = useCallback(async () => {
     setLoading(true);
@@ -91,10 +107,12 @@ export default function Home() {
         onToggleSaved={() => setShowSaved(!showSaved)}
         onRefresh={handleRefresh}
         refreshing={refreshing}
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
       />
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+      <main className={`mx-auto px-4 py-6 ${viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
+        <div className={`grid grid-cols-1 ${viewMode === 'card' ? 'lg:grid-cols-[280px_1fr]' : 'lg:grid-cols-[280px_1fr]'} gap-6`}>
           {/* Sidebar */}
           <aside className="space-y-4">
             <SearchBar onSearch={handleSearch} initialQuery={searchQuery} />
@@ -109,11 +127,11 @@ export default function Home() {
             />
           </aside>
 
-          {/* Article river */}
-          <div className="space-y-3">
+          {/* Articles area */}
+          <div>
             {/* Active filters summary */}
             {(feedType !== 'all' || selectedCategory || jurisdiction || searchQuery || showSaved) && (
-              <div className="flex items-center gap-2 text-sm text-brand-muted pb-2">
+              <div className="flex items-center gap-2 text-sm text-brand-muted pb-3">
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
                 {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{feedType}</span>}
@@ -142,23 +160,38 @@ export default function Home() {
               </div>
             )}
 
-            {/* Loading state */}
+            {/* Loading skeletons */}
             {loading && !error && (
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="bg-white border border-brand-border rounded-lg p-5 animate-pulse">
-                    <div className="flex gap-2 mb-3">
-                      <div className="h-5 w-16 bg-brand-border rounded-full" />
-                      <div className="h-5 w-12 bg-brand-border rounded-full" />
+              viewMode === 'card' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="bg-white border border-brand-border rounded-xl overflow-hidden animate-pulse">
+                      <div className="aspect-video bg-brand-border" />
+                      <div className="p-4 space-y-2">
+                        <div className="h-5 w-3/4 bg-brand-border rounded" />
+                        <div className="h-4 w-full bg-brand-border/60 rounded" />
+                        <div className="h-4 w-2/3 bg-brand-border/60 rounded" />
+                      </div>
                     </div>
-                    <div className="h-5 w-3/4 bg-brand-border rounded mb-2" />
-                    <div className="h-4 w-full bg-brand-border/60 rounded" />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="bg-white border border-brand-border rounded-lg p-4 animate-pulse flex gap-4">
+                      <div className="w-24 h-24 bg-brand-border rounded-lg flex-shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-5 w-16 bg-brand-border rounded-full" />
+                        <div className="h-5 w-3/4 bg-brand-border rounded" />
+                        <div className="h-4 w-full bg-brand-border/60 rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
 
-            {/* Articles */}
+            {/* Empty state */}
             {!loading && !error && articles.length === 0 && (
               <div className="text-center py-12 text-brand-muted">
                 <p className="text-lg font-heading font-semibold mb-1">No articles found</p>
@@ -166,9 +199,22 @@ export default function Home() {
               </div>
             )}
 
-            {!loading && articles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
+            {/* Articles */}
+            {!loading && !error && articles.length > 0 && (
+              viewMode === 'card' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {articles.map((article) => (
+                    <ArticleCard key={article.id} article={article} view="card" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {articles.map((article) => (
+                    <ArticleCard key={article.id} article={article} view="list" />
+                  ))}
+                </div>
+              )
+            )}
 
             {/* Pagination */}
             {!loading && totalPages > 1 && (

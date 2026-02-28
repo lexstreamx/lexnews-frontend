@@ -1,16 +1,20 @@
 'use client';
 
+import { ViewMode } from '@/types';
+
 interface HeaderProps {
   showSaved: boolean;
   onToggleSaved: () => void;
   onRefresh: () => void;
   refreshing: boolean;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
 }
 
-export default function Header({ showSaved, onToggleSaved, onRefresh, refreshing }: HeaderProps) {
+export default function Header({ showSaved, onToggleSaved, onRefresh, refreshing, viewMode, onViewModeChange }: HeaderProps) {
   return (
     <header className="border-b border-brand-border bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-      <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="font-heading text-xl font-bold tracking-tight">
             Legal News
@@ -21,6 +25,36 @@ export default function Header({ showSaved, onToggleSaved, onRefresh, refreshing
         </div>
 
         <div className="flex items-center gap-2">
+          {/* View toggle */}
+          <div className="flex items-center border border-brand-border rounded-lg overflow-hidden">
+            <button
+              onClick={() => onViewModeChange('card')}
+              className={`p-1.5 transition-colors ${
+                viewMode === 'card'
+                  ? 'bg-brand-body text-white'
+                  : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'
+              }`}
+              title="Card view"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => onViewModeChange('list')}
+              className={`p-1.5 transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-brand-body text-white'
+                  : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'
+              }`}
+              title="List view"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
+              </svg>
+            </button>
+          </div>
+
           <button
             onClick={onRefresh}
             disabled={refreshing}
