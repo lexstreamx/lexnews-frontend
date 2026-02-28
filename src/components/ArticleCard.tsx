@@ -1,31 +1,31 @@
 'use client';
 
 import { Article, ViewMode } from '@/types';
-import { saveArticle, unsaveArticle } from '@/lib/api';
+import { saveArticle, unsaveArticle, markRead, markUnread } from '@/lib/api';
 import { useState } from 'react';
 
-const FEED_TYPE_LABELS: Record<string, string> = {
+export const FEED_TYPE_LABELS: Record<string, string> = {
   news: 'News',
   blogpost: 'Blogpost',
-  judgment: 'Judgment',
+  judgment: 'Caselaw',
   regulatory: 'Regulatory',
 };
 
-const FEED_TYPE_COLORS: Record<string, string> = {
+export const FEED_TYPE_COLORS: Record<string, string> = {
   news: 'bg-blue-100 text-blue-800',
-  blogpost: 'bg-purple-100 text-purple-800',
+  blogpost: 'bg-blue-100 text-blue-800',
   judgment: 'bg-amber-100 text-amber-800',
   regulatory: 'bg-green-100 text-green-800',
 };
 
-const FEED_TYPE_GRADIENTS: Record<string, string> = {
+export const FEED_TYPE_GRADIENTS: Record<string, string> = {
   news: 'from-blue-500/20 to-blue-600/10',
-  blogpost: 'from-purple-500/20 to-purple-600/10',
+  blogpost: 'from-blue-500/20 to-blue-600/10',
   judgment: 'from-amber-500/20 to-amber-600/10',
   regulatory: 'from-green-500/20 to-green-600/10',
 };
 
-function timeAgo(dateStr: string): string {
+export function timeAgo(dateStr: string): string {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
   if (seconds < 60) return 'just now';
   const minutes = Math.floor(seconds / 60);
@@ -37,7 +37,7 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString();
 }
 
-function extractDomain(url: string): string {
+export function extractDomain(url: string): string {
   try {
     return new URL(url).hostname.replace('www.', '');
   } catch {
@@ -45,7 +45,7 @@ function extractDomain(url: string): string {
   }
 }
 
-function FeedTypeIcon({ feedType }: { feedType: string }) {
+export function FeedTypeIcon({ feedType }: { feedType: string }) {
   switch (feedType) {
     case 'news':
       return (
@@ -74,7 +74,7 @@ function FeedTypeIcon({ feedType }: { feedType: string }) {
   }
 }
 
-function BookmarkIcon({ saved }: { saved: boolean }) {
+export function BookmarkIcon({ saved }: { saved: boolean }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ function BookmarkIcon({ saved }: { saved: boolean }) {
   );
 }
 
-function ImagePlaceholder({ feedType }: { feedType: string }) {
+export function ImagePlaceholder({ feedType }: { feedType: string }) {
   return (
     <div className={`absolute inset-0 bg-gradient-to-br ${FEED_TYPE_GRADIENTS[feedType] || 'from-gray-200 to-gray-100'} flex items-center justify-center`}>
       <FeedTypeIcon feedType={feedType} />
@@ -104,11 +104,15 @@ function ImagePlaceholder({ feedType }: { feedType: string }) {
 interface ArticleCardProps {
   article: Article;
   view: ViewMode;
+  onSelect?: (article: Article) => void;
+  isSelected?: boolean;
+  onReadChange?: (article: Article, isRead: boolean) => void;
 }
 
-export default function ArticleCard({ article, view }: ArticleCardProps) {
+export default function ArticleCard({ article, view, onSelect, isSelected, onReadChange }: ArticleCardProps) {
   const [saved, setSaved] = useState(article.is_saved);
   const [saving, setSaving] = useState(false);
+  const [read, setRead] = useState(article.is_read);
   const [expanded, setExpanded] = useState(false);
   const [imgError, setImgError] = useState(false);
 
@@ -132,9 +136,28 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
     }
   }
 
+  async function toggleRead(e: React.MouseEvent) {
+    e.stopPropagation();
+    const newRead = !read;
+    setRead(newRead);
+    onReadChange?.(article, newRead);
+    try {
+      if (newRead) {
+        await markRead(article.id);
+      } else {
+        await markUnread(article.id);
+      }
+    } catch {
+      setRead(!newRead);
+    }
+  }
+
   if (view === 'card') {
     return (
-      <article className="article-enter bg-brand-bg-card border border-brand-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 group flex flex-col h-full">
+      <article
+        onClick={() => onSelect?.(article)}
+        className={`article-enter bg-brand-bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 group flex flex-col h-full ${onSelect ? 'cursor-pointer' : ''} ${isSelected ? 'border-brand-accent ring-2 ring-brand-accent/20' : 'border-brand-border'}`}
+      >
         {/* Image */}
         <div className="relative aspect-video overflow-hidden bg-brand-bg flex-shrink-0">
           {!showPlaceholder && (
@@ -150,7 +173,7 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
 
           {/* Overlay badges */}
           <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${article.feed_type === 'news' ? 'bg-brand-body text-white' : article.feed_type === 'blogpost' ? 'bg-purple-700 text-white' : article.feed_type === 'judgment' ? 'bg-amber-700 text-white' : 'bg-green-700 text-white'}`}>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${article.feed_type === 'news' ? 'bg-brand-body text-white' : article.feed_type === 'blogpost' ? 'bg-brand-body text-white' : article.feed_type === 'judgment' ? 'bg-amber-700 text-white' : 'bg-green-700 text-white'}`}>
               {FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
             </span>
             {article.jurisdiction && (
@@ -160,21 +183,31 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
             )}
           </div>
 
-          {/* Bookmark on hover */}
-          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Read/Unread + Bookmark */}
+          <div className="absolute top-3 right-3 flex items-center gap-1.5">
             <button
-              onClick={toggleSave}
-              disabled={saving}
-              className={`p-2 rounded-md shadow-sm transition-colors cursor-pointer ${saved ? 'bg-brand-accent text-white' : 'bg-white/90 hover:bg-brand-body text-gray-600 hover:text-white'}`}
+              onClick={toggleRead}
+              className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm transition-colors cursor-pointer ${
+                read ? 'bg-brand-accent text-white' : 'bg-[#DDEAE3] text-brand-body'
+              }`}
             >
-              <BookmarkIcon saved={saved} />
+              {read ? 'Read' : 'Unread'}
             </button>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleSave(); }}
+                disabled={saving}
+                className={`p-2 rounded-md shadow-sm transition-colors cursor-pointer ${saved ? 'bg-brand-accent text-white' : 'bg-white/90 hover:bg-brand-body text-gray-600 hover:text-white'}`}
+              >
+                <BookmarkIcon saved={saved} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="p-4 flex flex-col flex-1 min-h-0">
-          <a href={article.link} target="_blank" rel="noopener noreferrer" className="block group/title">
+          <a href={article.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block group/title">
             <h3 className="font-heading text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-2 mb-2">
               {article.title}
             </h3>
@@ -211,7 +244,7 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
           {jm?.ai_summary && (
             <>
               <button
-                onClick={() => setExpanded(!expanded)}
+                onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
                 className="text-xs text-brand-accent hover:underline font-medium mb-2 text-left"
               >
                 {expanded ? 'Hide summary' : 'AI Summary'}
@@ -238,7 +271,8 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
 
   return (
     <article
-      className="article-enter bg-brand-bg-card border border-brand-border rounded-lg p-4 hover:border-brand-accent/30 transition-all duration-200 group flex gap-4"
+      onClick={() => onSelect?.(article)}
+      className={`article-enter bg-brand-bg-card border rounded-lg p-4 hover:border-brand-accent/30 transition-all duration-200 group flex gap-4 ${onSelect ? 'cursor-pointer' : ''} ${isSelected ? 'border-brand-accent ring-2 ring-brand-accent/20' : 'border-brand-border'}`}
       style={{ opacity }}
     >
       {/* Thumbnail */}
@@ -277,7 +311,7 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
         </div>
 
         {/* Title */}
-        <a href={article.link} target="_blank" rel="noopener noreferrer" className="block group/title">
+        <a href={article.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block group/title">
           <h3 className="font-heading text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-1">
             {article.title}
           </h3>
@@ -298,7 +332,7 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
             {jm.ecli && <span className="opacity-60 font-mono text-[10px]">{jm.ecli}</span>}
             {jm.ai_summary && (
               <button
-                onClick={() => setExpanded(!expanded)}
+                onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
                 className="ml-auto text-brand-accent hover:underline font-medium"
               >
                 {expanded ? 'Hide' : 'AI Summary'}
@@ -332,15 +366,25 @@ export default function ArticleCard({ article, view }: ArticleCardProps) {
         </div>
       </div>
 
-      {/* Bookmark */}
-      <button
-        onClick={toggleSave}
-        disabled={saving}
-        className="flex-shrink-0 p-2 rounded-lg hover:bg-brand-bg-hover transition-colors self-start"
-        title={saved ? 'Remove from saved' : 'Save for later'}
-      >
-        <BookmarkIcon saved={saved} />
-      </button>
+      {/* Read/Unread + Bookmark */}
+      <div className="flex flex-col items-center gap-1.5 flex-shrink-0 self-start">
+        <button
+          onClick={toggleRead}
+          className={`text-[10px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+            read ? 'bg-brand-accent text-white' : 'bg-[#DDEAE3] text-brand-body'
+          }`}
+        >
+          {read ? 'Read' : 'Unread'}
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleSave(); }}
+          disabled={saving}
+          className="p-2 rounded-lg hover:bg-brand-bg-hover transition-colors"
+          title={saved ? 'Remove from saved' : 'Save for later'}
+        >
+          <BookmarkIcon saved={saved} />
+        </button>
+      </div>
     </article>
   );
 }

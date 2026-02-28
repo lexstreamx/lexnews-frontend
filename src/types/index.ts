@@ -34,6 +34,7 @@ export interface Article {
   relevance_score: number;
   categories: Category[];
   is_saved: boolean;
+  is_read: boolean;
   judgment: JudgmentMetadata | null;
 }
 

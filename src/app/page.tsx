@@ -1,18 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Header from '@/components/Header';
 import SearchBar from '@/components/SearchBar';
 import FilterBar from '@/components/FilterBar';
 import ArticleCard from '@/components/ArticleCard';
-import { fetchArticles, fetchCategories, refreshFeeds } from '@/lib/api';
+import ArticleDetailPanel from '@/components/ArticleDetailPanel';
+import { fetchArticles, fetchCategories, fetchJurisdictions, markRead } from '@/lib/api';
 import { Article, Category, FeedType, ViewMode } from '@/types';
 
 export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // View mode
@@ -20,24 +19,30 @@ export default function Home() {
 
   // Filters
   const [feedType, setFeedType] = useState<FeedType>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [jurisdiction, setJurisdiction] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [jurisdictions, setJurisdictions] = useState<string[]>([]);
+  const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Load view mode from localStorage
+  // Load view mode and sidebar state from localStorage
   useEffect(() => {
     const stored = localStorage.getItem('lexnews-view-mode');
     if (stored === 'card' || stored === 'list') {
       setViewMode(stored);
     }
+    const sb = localStorage.getItem('lexnews-sidebar');
+    if (sb === 'closed') setSidebarOpen(false);
   }, []);
 
-  function handleViewModeChange(mode: ViewMode) {
-    setViewMode(mode);
-    localStorage.setItem('lexnews-view-mode', mode);
+  function handleSidebarToggle() {
+    const next = !sidebarOpen;
+    setSidebarOpen(next);
+    localStorage.setItem('lexnews-sidebar', next ? 'open' : 'closed');
   }
 
   const loadArticles = useCallback(async () => {
@@ -48,8 +53,8 @@ export default function Home() {
         page,
         limit: 30,
         feed_type: feedType !== 'all' ? feedType : undefined,
-        category: selectedCategory || undefined,
-        jurisdiction: jurisdiction || undefined,
+        categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+        jurisdictions: selectedJurisdictions.length > 0 ? selectedJurisdictions : undefined,
         search: searchQuery || undefined,
         saved_only: showSaved || undefined,
       });
@@ -60,89 +65,212 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [page, feedType, selectedCategory, jurisdiction, searchQuery, showSaved]);
+  }, [page, feedType, selectedCategories, selectedJurisdictions, searchQuery, showSaved]);
 
-  const loadCategories = useCallback(async () => {
+  const loadFilters = useCallback(async () => {
     try {
-      const data = await fetchCategories();
-      setCategories(data.categories);
+      const [catData, jurData] = await Promise.all([fetchCategories(), fetchJurisdictions()]);
+      setCategories(catData.categories);
+      setJurisdictions(jurData.jurisdictions);
     } catch {
-      // Categories will just be empty
+      // Filters will just be empty
     }
   }, []);
 
   useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+    loadFilters();
+  }, [loadFilters]);
 
   useEffect(() => {
     loadArticles();
   }, [loadArticles]);
 
-  // Reset page when filters change
+  // Reset page and close panel when filters change
   useEffect(() => {
     setPage(1);
-  }, [feedType, selectedCategory, jurisdiction, searchQuery, showSaved]);
-
-  async function handleRefresh() {
-    setRefreshing(true);
-    try {
-      await refreshFeeds();
-      await loadArticles();
-    } catch {
-      setError('Failed to refresh feeds.');
-    } finally {
-      setRefreshing(false);
-    }
-  }
+    setSelectedArticle(null);
+  }, [feedType, selectedCategories, selectedJurisdictions, searchQuery, showSaved]);
 
   function handleSearch(query: string) {
     setSearchQuery(query);
   }
 
+  function handleSelectArticle(article: Article) {
+    setSelectedArticle(article);
+    if (!article.is_read) {
+      markRead(article.id).catch(() => {});
+      setArticles(prev => prev.map(a => a.id === article.id ? { ...a, is_read: true } : a));
+    }
+  }
+
+  function handleReadChange(article: Article, isRead: boolean) {
+    setArticles(prev => prev.map(a => a.id === article.id ? { ...a, is_read: isRead } : a));
+  }
+
   return (
     <div className="min-h-screen">
-      <Header
-        showSaved={showSaved}
-        onToggleSaved={() => setShowSaved(!showSaved)}
-        onRefresh={handleRefresh}
-        refreshing={refreshing}
-        viewMode={viewMode}
-        onViewModeChange={handleViewModeChange}
-      />
-
-      <main className={`mx-auto px-4 py-6 ${viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
-        <div className={`grid grid-cols-1 ${viewMode === 'card' ? 'lg:grid-cols-[280px_1fr]' : 'lg:grid-cols-[280px_1fr]'} gap-6`}>
+      <main className={`mx-auto px-4 py-6 ${selectedArticle ? 'max-w-[1600px]' : viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
+        <div className={`grid grid-cols-1 ${
+          sidebarOpen
+            ? (selectedArticle ? 'lg:grid-cols-[280px_1fr_380px]' : 'lg:grid-cols-[280px_1fr]')
+            : (selectedArticle ? 'lg:grid-cols-[56px_1fr_380px]' : 'lg:grid-cols-[56px_1fr]')
+        } gap-6`}>
           {/* Sidebar */}
-          <aside className="space-y-4">
-            <SearchBar onSearch={handleSearch} initialQuery={searchQuery} />
-            <FilterBar
-              categories={categories}
-              selectedFeedType={feedType}
-              selectedCategory={selectedCategory}
-              selectedJurisdiction={jurisdiction}
-              onFeedTypeChange={setFeedType}
-              onCategoryChange={setSelectedCategory}
-              onJurisdictionChange={setJurisdiction}
-            />
+          <aside className={`overflow-visible ${!sidebarOpen ? 'relative z-10' : ''}`}>
+            <div className={`bg-brand-body rounded-xl lg:sticky lg:top-6 overflow-visible ${sidebarOpen ? 'p-4' : 'p-4 lg:py-3 lg:px-2'}`}>
+              {/* Toggle button - desktop only */}
+              <div className={`hidden lg:flex ${sidebarOpen ? 'justify-end' : 'justify-center'} mb-3`}>
+                <button
+                  onClick={handleSidebarToggle}
+                  className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                  title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    {sidebarOpen ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    )}
+                  </svg>
+                </button>
+              </div>
+
+              {/* Expanded content - always on mobile, conditional on desktop */}
+              <div className={`space-y-4 ${!sidebarOpen ? 'lg:hidden' : ''}`}>
+                {/* Logo */}
+                <div className="flex items-center gap-2.5 px-1">
+                  <svg viewBox="0 0 80 100" className="w-7 h-9 text-brand-accent flex-shrink-0">
+                    <circle cx="40" cy="35" r="30" fill="currentColor" />
+                    <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
+                  </svg>
+                  <span className="font-heading text-base font-bold text-brand-accent tracking-tight">LexStream</span>
+                </div>
+                <SearchBar onSearch={handleSearch} initialQuery={searchQuery} dark />
+                <FilterBar
+                  categories={categories}
+                  jurisdictions={jurisdictions}
+                  selectedFeedType={feedType}
+                  selectedCategories={selectedCategories}
+                  selectedJurisdictions={selectedJurisdictions}
+                  onFeedTypeChange={setFeedType}
+                  onCategoriesChange={setSelectedCategories}
+                  onJurisdictionsChange={setSelectedJurisdictions}
+                  dark
+                />
+              </div>
+
+              {/* Collapsed icons - desktop only when collapsed */}
+              {!sidebarOpen && (
+                <div className="hidden lg:flex flex-col items-center gap-1">
+                  {/* Logo icon */}
+                  <svg viewBox="0 0 80 100" className="w-7 h-9 text-brand-accent mb-1">
+                    <circle cx="40" cy="35" r="30" fill="currentColor" />
+                    <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
+                  </svg>
+                  <div className="w-6 border-t border-white/15 my-1" />
+                  {/* Search */}
+                  <div className="relative group">
+                    <button
+                      onClick={handleSidebarToggle}
+                      className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                      </svg>
+                    </button>
+                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Search</span>
+                  </div>
+
+                  <div className="w-6 border-t border-white/15 my-1" />
+
+                  {/* Feed type icons */}
+                  {([
+                    { value: 'all' as FeedType, label: 'All', path: 'M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z' },
+                    { value: 'news' as FeedType, label: 'News', path: 'M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z' },
+                    { value: 'blogpost' as FeedType, label: 'Blogposts', path: 'M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10' },
+                    { value: 'judgment' as FeedType, label: 'Caselaw', path: 'M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z' },
+                    { value: 'regulatory' as FeedType, label: 'Regulatory', path: 'M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z' },
+                  ]).map((ft) => (
+                    <div key={ft.value} className="relative group">
+                      <button
+                        onClick={() => setFeedType(ft.value)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          feedType === ft.value
+                            ? 'bg-brand-accent text-white'
+                            : 'text-white/60 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d={ft.path} />
+                        </svg>
+                      </button>
+                      <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">{ft.label}</span>
+                    </div>
+                  ))}
+
+                  <div className="w-6 border-t border-white/15 my-1" />
+
+                  {/* Jurisdiction */}
+                  <div className="relative group">
+                    <button
+                      onClick={handleSidebarToggle}
+                      className={`p-2 rounded-lg transition-colors relative ${
+                        selectedJurisdictions.length > 0 ? 'text-brand-accent' : 'text-white/60 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+                      </svg>
+                      {selectedJurisdictions.length > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-brand-accent text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                          {selectedJurisdictions.length}
+                        </span>
+                      )}
+                    </button>
+                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Jurisdiction</span>
+                  </div>
+
+                  {/* Areas of Law */}
+                  <div className="relative group">
+                    <button
+                      onClick={handleSidebarToggle}
+                      className={`p-2 rounded-lg transition-colors relative ${
+                        selectedCategories.length > 0 ? 'text-brand-accent' : 'text-white/60 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+                      </svg>
+                      {selectedCategories.length > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-brand-accent text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                          {selectedCategories.length}
+                        </span>
+                      )}
+                    </button>
+                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Areas of Law</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </aside>
 
           {/* Articles area */}
           <div>
             {/* Active filters summary */}
-            {(feedType !== 'all' || selectedCategory || jurisdiction || searchQuery || showSaved) && (
-              <div className="flex items-center gap-2 text-sm text-brand-muted pb-3">
+            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || searchQuery || showSaved) && (
+              <div className="flex items-center gap-2 text-sm text-brand-muted pb-3 flex-wrap">
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
                 {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{feedType}</span>}
-                {selectedCategory && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">{selectedCategory}</span>}
-                {jurisdiction && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{jurisdiction}</span>}
+                {selectedCategories.length > 0 && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">{selectedCategories.length} area{selectedCategories.length > 1 ? 's' : ''}</span>}
+                {selectedJurisdictions.length > 0 && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{selectedJurisdictions.join(', ')}</span>}
                 {searchQuery && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">&ldquo;{searchQuery}&rdquo;</span>}
                 <button
                   onClick={() => {
                     setFeedType('all');
-                    setSelectedCategory(null);
-                    setJurisdiction('');
+                    setSelectedCategories([]);
+                    setSelectedJurisdictions([]);
                     setSearchQuery('');
                     setShowSaved(false);
                   }}
@@ -202,15 +330,15 @@ export default function Home() {
             {/* Articles */}
             {!loading && !error && articles.length > 0 && (
               viewMode === 'card' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {articles.map((article) => (
-                    <ArticleCard key={article.id} article={article} view="card" />
+                <div className={`grid grid-cols-1 md:grid-cols-2 ${selectedArticle ? '' : 'xl:grid-cols-3'} gap-4`}>
+                  {articles.map((a) => (
+                    <ArticleCard key={a.id} article={a} view="card" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} />
                   ))}
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {articles.map((article) => (
-                    <ArticleCard key={article.id} article={article} view="list" />
+                  {articles.map((a) => (
+                    <ArticleCard key={a.id} article={a} view="list" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} />
                   ))}
                 </div>
               )
@@ -239,6 +367,14 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Detail panel */}
+          {selectedArticle && (
+            <ArticleDetailPanel
+              article={selectedArticle}
+              onClose={() => setSelectedArticle(null)}
+            />
+          )}
         </div>
       </main>
     </div>
