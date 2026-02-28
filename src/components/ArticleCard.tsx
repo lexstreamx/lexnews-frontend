@@ -184,8 +184,8 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
             )}
           </div>
 
-          {/* Read/Unread + Bookmark */}
-          <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          {/* Read/Unread label — bottom left */}
+          <div className="absolute bottom-3 left-3">
             <button
               onClick={toggleRead}
               className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm transition-colors cursor-pointer ${
@@ -194,15 +194,17 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
             >
               {read ? 'Read' : 'Unread'}
             </button>
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={(e) => { e.stopPropagation(); toggleSave(); }}
-                disabled={saving}
-                className={`p-2 rounded-md shadow-sm transition-colors cursor-pointer ${saved ? 'bg-brand-accent text-white' : 'bg-white/90 hover:bg-brand-body text-gray-600 hover:text-white'}`}
-              >
-                <BookmarkIcon saved={saved} />
-              </button>
-            </div>
+          </div>
+
+          {/* Bookmark — top right */}
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleSave(); }}
+              disabled={saving}
+              className={`p-2 rounded-md shadow-sm transition-colors cursor-pointer ${saved ? 'bg-brand-accent text-white' : 'bg-white/90 hover:bg-brand-body text-gray-600 hover:text-white'}`}
+            >
+              <BookmarkIcon saved={saved} />
+            </button>
           </div>
         </div>
 
