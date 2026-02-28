@@ -82,7 +82,7 @@ export function BookmarkIcon({ saved }: { saved: boolean }) {
       fill={saved ? 'currentColor' : 'none'}
       stroke="currentColor"
       strokeWidth={saved ? 0 : 1.5}
-      className={`w-4 h-4 ${saved ? 'text-brand-accent' : ''}`}
+      className="w-4 h-4"
     >
       <path
         strokeLinecap="round"
@@ -380,7 +380,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         <button
           onClick={(e) => { e.stopPropagation(); toggleSave(); }}
           disabled={saving}
-          className="p-2 rounded-lg hover:bg-brand-bg-hover transition-colors"
+          className={`p-2 rounded-lg transition-colors ${saved ? 'bg-brand-accent text-white' : 'hover:bg-brand-bg-hover'}`}
           title={saved ? 'Remove from saved' : 'Save for later'}
         >
           <BookmarkIcon saved={saved} />
