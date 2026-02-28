@@ -207,11 +207,11 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
         {/* Content */}
         <div className="p-4 flex flex-col flex-1 min-h-0">
-          <a href={article.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block group/title">
+          <div className="group/title cursor-pointer">
             <h3 className="font-heading text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-2 mb-2">
               {article.title}
             </h3>
-          </a>
+          </div>
 
           {/* Categories */}
           {article.categories.length > 0 && (
@@ -311,11 +311,11 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         </div>
 
         {/* Title */}
-        <a href={article.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block group/title">
+        <div className="group/title cursor-pointer">
           <h3 className="font-heading text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-1">
             {article.title}
           </h3>
-        </a>
+        </div>
 
         {/* Description */}
         {article.description && (
