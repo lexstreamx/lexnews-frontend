@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
-  title: "Legal News Aggregator",
+  title: "LexStream — Legal Intelligence Platform",
   description: "AI-categorized legal news, blogposts, judgments & regulatory updates",
 };
 
@@ -14,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-body antialiased bg-brand-bg text-brand-body min-h-screen">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

@@ -1,14 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import SearchBar from '@/components/SearchBar';
 import FilterBar from '@/components/FilterBar';
 import ArticleCard from '@/components/ArticleCard';
 import ArticleDetailPanel from '@/components/ArticleDetailPanel';
+import LoginScreen from '@/components/LoginScreen';
+import { useAuth } from '@/lib/auth-context';
 import { fetchArticles, fetchCategories, fetchJurisdictions, markRead } from '@/lib/api';
 import { Article, Category, FeedType, ViewMode } from '@/types';
 
 export default function Home() {
+  const { user, loading: authLoading, logout } = useAuth();
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +32,15 @@ export default function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const initialCategoriesSet = useRef(false);
+
+  // Pre-select user's categories from their LearnWorlds tags
+  useEffect(() => {
+    if (user && user.category_slugs.length > 0 && !initialCategoriesSet.current) {
+      setSelectedCategories(user.category_slugs);
+      initialCategoriesSet.current = true;
+    }
+  }, [user]);
 
   // Load view mode and sidebar state from localStorage
   useEffect(() => {
@@ -113,6 +126,26 @@ export default function Home() {
     );
   }
 
+  // Show loading spinner while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
+        <div className="flex flex-col items-center gap-4">
+          <svg viewBox="0 0 80 100" className="w-10 h-12 text-brand-accent animate-pulse">
+            <circle cx="40" cy="35" r="30" fill="currentColor" />
+            <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
+          </svg>
+          <p className="text-brand-muted text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login screen if not authenticated
+  if (!user) {
+    return <LoginScreen />;
+  }
+
   return (
     <div className="min-h-screen">
       <main className={`mx-auto px-4 py-6 ${selectedArticle ? 'max-w-[1600px]' : viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
@@ -163,6 +196,27 @@ export default function Home() {
                   onJurisdictionsChange={setSelectedJurisdictions}
                   dark
                 />
+
+                {/* User info */}
+                <div className="border-t border-white/15 pt-3 mt-2">
+                  <div className="flex items-center gap-2.5 px-1">
+                    <div className="w-7 h-7 rounded-full bg-brand-accent/20 text-brand-accent flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      {(user.display_name || user.email)[0].toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-xs font-medium truncate">{user.display_name || user.email}</p>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                      title="Sign out"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Collapsed icons - desktop only when collapsed */}
@@ -255,6 +309,21 @@ export default function Home() {
                       )}
                     </button>
                     <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Areas of Law</span>
+                  </div>
+
+                  {/* Spacer + user avatar + logout */}
+                  <div className="flex-1" />
+                  <div className="w-6 border-t border-white/15 my-1" />
+                  <div className="relative group">
+                    <button
+                      onClick={logout}
+                      className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                      </svg>
+                    </button>
+                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Sign out</span>
                   </div>
                 </div>
               )}
