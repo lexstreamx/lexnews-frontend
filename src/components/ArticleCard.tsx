@@ -107,9 +107,10 @@ interface ArticleCardProps {
   onSelect?: (article: Article) => void;
   isSelected?: boolean;
   onReadChange?: (article: Article, isRead: boolean) => void;
+  onCategoryClick?: (slug: string) => void;
 }
 
-export default function ArticleCard({ article, view, onSelect, isSelected, onReadChange }: ArticleCardProps) {
+export default function ArticleCard({ article, view, onSelect, isSelected, onReadChange, onCategoryClick }: ArticleCardProps) {
   const [saved, setSaved] = useState(article.is_saved);
   const [saving, setSaving] = useState(false);
   const [read, setRead] = useState(article.is_read);
@@ -223,12 +224,13 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
                 {article.source_name || extractDomain(article.source_url)}
               </span>
               {article.categories.slice(0, 2).map((cat) => (
-                <span
+                <button
                   key={cat.id}
-                  className="px-2 py-0.5 bg-brand-body/85 text-white text-xs rounded whitespace-nowrap"
+                  onClick={(e) => { e.stopPropagation(); onCategoryClick?.(cat.slug); }}
+                  className="px-2 py-0.5 bg-brand-body/85 text-white text-xs rounded whitespace-nowrap hover:bg-brand-accent transition-colors cursor-pointer"
                 >
                   {cat.name}
-                </span>
+                </button>
               ))}
             </div>
           )}
@@ -351,12 +353,13 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         {/* Categories + source */}
         <div className="flex items-center gap-2 mt-2 flex-wrap">
           {article.categories.slice(0, 3).map((cat) => (
-            <span
+            <button
               key={cat.id}
-              className="text-xs px-2 py-0.5 rounded bg-brand-accent/10 text-brand-accent font-medium"
+              onClick={(e) => { e.stopPropagation(); onCategoryClick?.(cat.slug); }}
+              className="text-xs px-2 py-0.5 rounded bg-brand-accent/10 text-brand-accent font-medium hover:bg-brand-accent hover:text-white transition-colors cursor-pointer"
             >
               {cat.name}
-            </span>
+            </button>
           ))}
           {article.source_name && (
             <span className="text-xs text-brand-muted ml-auto">

@@ -107,6 +107,12 @@ export default function Home() {
     setArticles(prev => prev.map(a => a.id === article.id ? { ...a, is_read: isRead } : a));
   }
 
+  function handleCategoryClick(slug: string) {
+    setSelectedCategories(prev =>
+      prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <main className={`mx-auto px-4 py-6 ${selectedArticle ? 'max-w-[1600px]' : viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
@@ -263,7 +269,21 @@ export default function Home() {
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
                 {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{feedType}</span>}
-                {selectedCategories.length > 0 && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">{selectedCategories.length} area{selectedCategories.length > 1 ? 's' : ''}</span>}
+                {selectedCategories.map(slug => {
+                  const cat = categories.find(c => c.slug === slug);
+                  return (
+                    <button
+                      key={slug}
+                      onClick={() => setSelectedCategories(prev => prev.filter(s => s !== slug))}
+                      className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium hover:bg-brand-accent hover:text-white transition-colors flex items-center gap-1"
+                    >
+                      {cat?.name || slug}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  );
+                })}
                 {selectedJurisdictions.length > 0 && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{selectedJurisdictions.join(', ')}</span>}
                 {searchQuery && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">&ldquo;{searchQuery}&rdquo;</span>}
                 <button
@@ -332,13 +352,13 @@ export default function Home() {
               viewMode === 'card' ? (
                 <div className={`grid grid-cols-1 md:grid-cols-2 ${selectedArticle ? '' : 'xl:grid-cols-3'} gap-4`}>
                   {articles.map((a) => (
-                    <ArticleCard key={a.id} article={a} view="card" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} />
+                    <ArticleCard key={a.id} article={a} view="card" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} onCategoryClick={handleCategoryClick} />
                   ))}
                 </div>
               ) : (
                 <div className="space-y-3">
                   {articles.map((a) => (
-                    <ArticleCard key={a.id} article={a} view="list" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} />
+                    <ArticleCard key={a.id} article={a} view="list" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} onCategoryClick={handleCategoryClick} />
                   ))}
                 </div>
               )
