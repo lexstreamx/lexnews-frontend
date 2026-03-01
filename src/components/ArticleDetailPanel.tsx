@@ -9,6 +9,8 @@ import {
   ImagePlaceholder,
   FEED_TYPE_LABELS,
   FEED_TYPE_COLORS,
+  getJudgmentDisplayTitle,
+  getJudgmentDocLabel,
 } from './ArticleCard';
 
 interface ArticleDetailPanelProps {
@@ -112,7 +114,7 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
         {/* Feed type + jurisdiction + time */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${FEED_TYPE_COLORS[article.feed_type] || 'bg-gray-100 text-gray-700'}`}>
-            {FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
+            {(article.feed_type === 'judgment' ? getJudgmentDocLabel(article) : null) || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
           </span>
           {article.jurisdiction && (
             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-bg text-brand-muted border border-brand-border">
@@ -126,7 +128,7 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
 
         {/* Title */}
         <h2 className="font-heading text-lg font-bold text-brand-body leading-snug">
-          {article.title}
+          {article.feed_type === 'judgment' ? getJudgmentDisplayTitle(article) : article.title}
         </h2>
 
         {/* Source */}
@@ -160,7 +162,7 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
         {/* Judgment metadata */}
         {jm && (
           <div className="space-y-3 pt-2 border-t border-brand-border">
-            <h4 className="text-xs font-semibold text-brand-muted uppercase tracking-wide">Judgment Details</h4>
+            <h4 className="text-xs font-semibold text-brand-muted uppercase tracking-wide">Case Details</h4>
             <div className="grid grid-cols-2 gap-2 text-xs">
               {jm.court && (
                 <div>
@@ -174,10 +176,22 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
                   <p className="font-medium text-brand-body">{jm.document_type}</p>
                 </div>
               )}
-              {jm.case_name && (
-                <div className="col-span-2">
+              {jm.case_number && (
+                <div>
                   <span className="text-brand-muted">Case:</span>
-                  <p className="font-medium text-brand-body">{jm.case_name}</p>
+                  <p className="font-medium text-brand-body">{jm.case_number}</p>
+                </div>
+              )}
+              {jm.procedure_type && (
+                <div>
+                  <span className="text-brand-muted">Procedure:</span>
+                  <p className="font-medium text-brand-body">{jm.procedure_type}</p>
+                </div>
+              )}
+              {jm.parties && (
+                <div className="col-span-2">
+                  <span className="text-brand-muted">Parties:</span>
+                  <p className="font-medium text-brand-body">{jm.parties}</p>
                 </div>
               )}
               {jm.ecli && (
@@ -187,9 +201,21 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
                 </div>
               )}
               {jm.judge_rapporteur && (
-                <div className="col-span-2">
+                <div>
                   <span className="text-brand-muted">Judge Rapporteur:</span>
                   <p className="font-medium text-brand-body">{jm.judge_rapporteur}</p>
+                </div>
+              )}
+              {jm.advocate_general && (
+                <div>
+                  <span className="text-brand-muted">Advocate General:</span>
+                  <p className="font-medium text-brand-body">{jm.advocate_general}</p>
+                </div>
+              )}
+              {jm.decision_date && (
+                <div>
+                  <span className="text-brand-muted">Decision Date:</span>
+                  <p className="font-medium text-brand-body">{new Date(jm.decision_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
               )}
             </div>

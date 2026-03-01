@@ -93,6 +93,107 @@ export function BookmarkIcon({ saved }: { saved: boolean }) {
   );
 }
 
+// Clean CURIA-style garbage prefixes from titles client-side (safety net for old DB data)
+function cleanTitle(raw: string): string {
+  let t = raw.replace(/^\d+\/[A-Za-z]+ [A-Za-z]+ \d+ \d+:\d+:\d+ [A-Z]+ \d+ : (?:null - )?/i, '');
+  t = t.replace(/^\d+\/\s*-\s*/, '');
+  return t.trim() || raw;
+}
+
+// Build a clean display title for judgment articles: "C-XX/XX | Party v Party"
+// Falls back to a cleaned article title if metadata is insufficient
+export function getJudgmentDisplayTitle(article: Article): string {
+  const jm = article.judgment;
+  if (!jm) return article.title;
+
+  // Best case: both case_number and parties in metadata
+  if (jm.case_number && jm.parties) {
+    return `${jm.case_number} | ${jm.parties}`;
+  }
+
+  // Clean the raw title (handles CURIA garbage prefixes)
+  const cleaned = cleanTitle(article.title);
+
+  // Try to find a case number from metadata, title, CELEX, ECLI, or description
+  let caseNum = jm.case_number || null;
+  if (!caseNum) {
+    // Try C-XX/XX pattern in cleaned title
+    const titleMatch = cleaned.match(/(?:Joined\s+)?Cases?\s+((?:[CT]-\d+\/\d+)(?:(?:\s+and\s+|\s*,\s*)[CT]-\d+\/\d+)*)/i)
+      || cleaned.match(/([CT]-\d+\/\d+(?:(?:\s+and\s+|\s*,\s*)[CT]-\d+\/\d+)*)/);
+    if (titleMatch) caseNum = titleMatch[1];
+
+    // Try CELEX number as title: "62025CC0120" → "C-120/25"
+    if (!caseNum) {
+      const celexMatch = cleaned.match(/^6(\d{4})([CT])[JCOA](\d+)$/);
+      if (celexMatch) {
+        const year = celexMatch[1].substring(2);
+        const court = celexMatch[2];
+        const num = parseInt(celexMatch[3], 10);
+        caseNum = `${court}-${num}/${year}`;
+      }
+    }
+
+    // Try from description
+    if (!caseNum && article.description) {
+      const descMatch = article.description.match(/([CT]-\d+\/\d+(?:(?:\s*,\s*|\s+and\s+)[CT]-\d+\/\d+)*)/);
+      if (descMatch) caseNum = descMatch[1];
+    }
+  }
+
+  // If we have a case number
+  if (caseNum) {
+    if (jm.parties) return `${caseNum} | ${jm.parties}`;
+
+    // Don't append titles that are just CELEX numbers, ECLI fallbacks, or redundant
+    const isCelex = /^6\d{4}[CT][JCOA]\d+$/.test(cleaned);
+    const isEcliFallback = /^(?:Court of Justice|General Court)\s*[—–-]/i.test(cleaned);
+    if (!isCelex && !isEcliFallback && cleaned.length < 100) {
+      // Strip redundant case number references from the appended title
+      const trimmed = cleaned
+        .replace(/(?:Judgment|Opinion|Order)\s+(?:of\s+)?(?:the\s+)?(?:Court|Advocate General\b[^—–-]*?)\s+in\s+Cases?\s+[CT]-\d+\/\d+/gi, '')
+        .replace(/\s+in\s+Cases?\s+[CT]-\d+\/\d+/gi, '')
+        .replace(/Cases?\s+[CT]-\d+\/\d+\s*/gi, '')
+        .replace(/^\s*[—–-]\s*/, '')
+        .trim();
+      if (trimmed.length > 3) {
+        return `${caseNum} | ${trimmed}`;
+      }
+    }
+    return caseNum;
+  }
+
+  // No case number — use cleaned title
+  return cleaned;
+}
+
+// Get a short document type label for judgment badges
+export function getJudgmentDocLabel(article: Article): string | null {
+  const jm = article.judgment;
+  if (!jm) return null;
+
+  const dt = jm.document_type;
+
+  if (dt === 'Press Release') return 'Press Release';
+  if (dt?.includes('Opinion of Advocate General') || dt?.includes('View of Advocate General')) return 'AG Opinion';
+  if (dt === 'Order') return 'Order';
+
+  // Check CELEX-based title for AG Opinions that were mis-labeled as Judgment in backfill
+  // CELEX: 6YYYYCC = AG Conclusions, 6YYYYCA = AG Opinion
+  const celexTitle = article.title?.match(/^6\d{4}([CT])([JCOA])\d+$/);
+  if (celexTitle) {
+    const docCode = celexTitle[2];
+    if (docCode === 'C' || docCode === 'A') return 'AG Opinion';
+    if (docCode === 'O') return 'Order';
+    return 'Judgment';
+  }
+
+  if (dt === 'Judgment') return 'Judgment';
+  if (dt) return dt;
+
+  // Default: if we have judgment metadata but no document_type, it's likely a Judgment
+  return 'Judgment';
+}
+
 export function ImagePlaceholder({ feedType }: { feedType: string }) {
   return (
     <div className={`absolute inset-0 bg-gradient-to-br ${FEED_TYPE_GRADIENTS[feedType] || 'from-gray-200 to-gray-100'} flex items-center justify-center`}>
@@ -119,6 +220,9 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
   const jm = article.judgment;
   const showPlaceholder = !article.image_url || imgError;
+  const isJudgment = article.feed_type === 'judgment';
+  const displayTitle = isJudgment ? getJudgmentDisplayTitle(article) : article.title;
+  const docLabel = isJudgment ? getJudgmentDocLabel(article) : null;
 
   async function toggleSave() {
     setSaving(true);
@@ -175,7 +279,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
           {/* Overlay badges */}
           <div className="absolute top-3 left-3 flex items-center gap-2">
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${article.feed_type === 'news' ? 'bg-brand-body text-white' : article.feed_type === 'blogpost' ? 'bg-brand-body text-white' : article.feed_type === 'judgment' ? 'bg-amber-700 text-white' : 'bg-green-700 text-white'}`}>
-              {FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
+              {docLabel || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
             </span>
             {article.jurisdiction && (
               <span className="text-xs font-medium px-2 py-1 rounded-md bg-white/90 text-brand-body backdrop-blur-sm">
@@ -212,7 +316,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         <div className="p-4 flex flex-col flex-1 min-h-0">
           <div className="group/title cursor-pointer">
             <h3 className="font-heading text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-2 mb-2">
-              {article.title}
+              {displayTitle}
             </h3>
           </div>
 
@@ -302,7 +406,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         {/* Feed type + jurisdiction + time */}
         <div className="flex items-center gap-2 mb-1.5 flex-wrap">
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${FEED_TYPE_COLORS[article.feed_type] || 'bg-gray-100 text-gray-700'}`}>
-            {FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
+            {docLabel || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
           </span>
           {article.jurisdiction && (
             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-bg text-brand-muted border border-brand-border">
@@ -317,7 +421,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         {/* Title */}
         <div className="group/title cursor-pointer">
           <h3 className="font-heading text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-1">
-            {article.title}
+            {displayTitle}
           </h3>
         </div>
 

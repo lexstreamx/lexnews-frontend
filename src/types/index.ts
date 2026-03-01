@@ -10,12 +10,16 @@ export interface JudgmentMetadata {
   court: string | null;
   chamber: string | null;
   judge_rapporteur: string | null;
+  advocate_general: string | null;
   procedure_type: string | null;
   subject_matter: string | null;
   document_type: string | null;
   case_name: string | null;
+  case_number: string | null;
+  parties: string | null;
   decision_date: string | null;
   ai_summary: string | null;
+  press_release_url: string | null;
 }
 
 export interface Article {
