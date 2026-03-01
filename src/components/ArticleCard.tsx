@@ -378,10 +378,10 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
   return (
     <article
       onClick={() => onSelect?.(article)}
-      className={`article-enter bg-brand-bg-card border rounded-lg p-4 hover:border-brand-accent/30 transition-all duration-200 group flex gap-4 ${onSelect ? 'cursor-pointer' : ''} ${isSelected ? 'border-brand-accent ring-2 ring-brand-accent/20' : 'border-brand-border'}`}
+      className={`article-enter bg-brand-bg-card border rounded-lg p-3 sm:p-4 hover:border-brand-accent/30 transition-all duration-200 group flex gap-3 sm:gap-4 ${onSelect ? 'cursor-pointer' : ''} ${isSelected ? 'border-brand-accent ring-2 ring-brand-accent/20' : 'border-brand-border'}`}
     >
-      {/* Thumbnail */}
-      <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-brand-bg relative">
+      {/* Thumbnail - hidden on mobile */}
+      <div className="hidden sm:block flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-brand-bg relative">
         {!showPlaceholder && (
           <img
             src={article.image_url!}
@@ -400,8 +400,8 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        {/* Feed type + jurisdiction + time */}
-        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+        {/* Feed type + jurisdiction + time + mobile actions */}
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 flex-wrap">
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${FEED_TYPE_COLORS[article.feed_type] || 'bg-gray-100 text-gray-700'}`}>
             {docLabel || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
           </span>
@@ -413,18 +413,37 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
           <span className="text-xs text-brand-muted">
             {timeAgo(article.published_at)}
           </span>
+          {/* Read + Bookmark inline on mobile */}
+          <div className="flex items-center gap-1 ml-auto sm:hidden">
+            <button
+              onClick={toggleRead}
+              className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors cursor-pointer ${
+                read ? 'bg-brand-accent text-white' : 'bg-[#DDEAE3] text-brand-body'
+              }`}
+            >
+              {read ? 'Read' : 'Unread'}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleSave(); }}
+              disabled={saving}
+              className={`p-1 rounded-md transition-colors ${saved ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-body'}`}
+              title={saved ? 'Remove from saved' : 'Save for later'}
+            >
+              <BookmarkIcon saved={saved} />
+            </button>
+          </div>
         </div>
 
         {/* Title */}
         <div className="group/title cursor-pointer">
-          <h3 className="font-heading text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-1">
+          <h3 className="font-heading text-sm sm:text-base font-semibold text-brand-body group-hover/title:text-brand-accent transition-colors leading-snug line-clamp-2 sm:line-clamp-1">
             {displayTitle}
           </h3>
         </div>
 
         {/* Description */}
         {article.description && (
-          <p className="mt-1 text-sm text-brand-muted line-clamp-1 leading-relaxed">
+          <p className="mt-1 text-xs sm:text-sm text-brand-muted line-clamp-2 sm:line-clamp-1 leading-relaxed">
             {article.description}
           </p>
         )}
@@ -434,7 +453,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
           <div className="flex items-center gap-2 mt-1.5 flex-wrap text-xs text-brand-muted">
             {jm.court && <span>{jm.court}</span>}
             {jm.document_type && <><span className="opacity-40">|</span><span>{jm.document_type}</span></>}
-            {jm.ecli && <span className="opacity-60 font-mono text-[10px]">{jm.ecli}</span>}
+            {jm.ecli && <span className="hidden sm:inline opacity-60 font-mono text-[10px]">{jm.ecli}</span>}
             {jm.ai_summary && (
               <button
                 onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
@@ -454,24 +473,24 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         )}
 
         {/* Categories + source */}
-        <div className="flex items-center gap-2 mt-2 flex-wrap">
+        <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2 flex-wrap">
           {article.categories.slice(0, 3).map((cat) => (
             <button
               key={cat.id}
               onClick={(e) => { e.stopPropagation(); onCategoryClick?.(cat.slug); }}
-              className="text-xs px-2 py-0.5 rounded bg-brand-accent/10 text-brand-accent font-medium hover:bg-brand-accent hover:text-white transition-colors cursor-pointer"
+              className="text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-brand-accent/10 text-brand-accent font-medium hover:bg-brand-accent hover:text-white transition-colors cursor-pointer"
             >
               {cat.name}
             </button>
           ))}
-          <span className="text-xs text-brand-muted ml-auto">
+          <span className="text-[11px] sm:text-xs text-brand-muted ml-auto">
             {extractDomain(article.link)}
           </span>
         </div>
       </div>
 
-      {/* Read/Unread + Bookmark */}
-      <div className="flex flex-col items-center gap-1.5 flex-shrink-0 self-start">
+      {/* Read/Unread + Bookmark - desktop only */}
+      <div className="hidden sm:flex flex-col items-center gap-1.5 flex-shrink-0 self-start">
         <button
           onClick={toggleRead}
           className={`text-[10px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
