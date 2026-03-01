@@ -19,8 +19,8 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brand-bg">
-      <div className="w-full max-w-sm px-6">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-brand-bg p-6">
+      <div className="w-full max-w-sm">
         {/* Logo banner */}
         <div className="bg-brand-sidebar rounded-xl px-6 py-8 mb-6 flex flex-col items-center">
           <img src="/logo-white.svg" alt="LexLens" className="h-10 mb-3" />
