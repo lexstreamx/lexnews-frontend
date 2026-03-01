@@ -7,7 +7,7 @@ import { useState } from 'react';
 export const FEED_TYPE_LABELS: Record<string, string> = {
   news: 'News',
   blogpost: 'Blogpost',
-  judgment: 'Caselaw',
+  judgment: 'Case Law',
   regulatory: 'Regulatory',
 };
 

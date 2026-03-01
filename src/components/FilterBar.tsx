@@ -7,7 +7,7 @@ const FEED_TYPES: { value: FeedType; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'news', label: 'News' },
   { value: 'blogpost', label: 'Blogposts' },
-  { value: 'judgment', label: 'Caselaw' },
+  { value: 'judgment', label: 'Case Law' },
   { value: 'regulatory', label: 'Regulatory' },
 ];
 
