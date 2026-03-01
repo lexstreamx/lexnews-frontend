@@ -11,7 +11,7 @@ import { fetchArticles, fetchCategories, fetchJurisdictions, markRead } from '@/
 import { Article, Category, FeedType, ViewMode } from '@/types';
 
 export default function Home() {
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -286,15 +286,15 @@ export default function Home() {
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-xs font-medium truncate">{user.display_name || user.email}</p>
                     </div>
-                    <button
-                      onClick={logout}
+                    <a
+                      href="https://academy.lexstream.io/start"
                       className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                      title="Sign out"
+                      title="Return to Academy"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                       </svg>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -406,19 +406,20 @@ export default function Home() {
                     <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Saved</span>
                   </div>
 
-                  {/* Spacer + user avatar + logout */}
+                  {/* Spacer + user avatar + academy link */}
                   <div className="flex-1" />
                   <div className="w-6 border-t border-white/15 my-1" />
                   <div className="relative group">
-                    <button
-                      onClick={logout}
+                    <a
+                      href="https://academy.lexstream.io/start"
                       className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                      title="Return to Academy"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                       </svg>
-                    </button>
-                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Sign out</span>
+                    </a>
+                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Return to Academy</span>
                   </div>
                 </div>
               )}
