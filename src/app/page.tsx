@@ -194,7 +194,7 @@ export default function Home() {
               {/* Mobile compact bar - shown when sidebar is closed on mobile */}
               {!sidebarOpen && (
                 <div className="flex lg:hidden items-center justify-between px-1">
-                  <img src="/logo-white.svg" alt="LexStream" className="h-5" />
+                  <img src="/logo-white.svg" alt="LexLens" className="h-7" />
                   <button
                     onClick={handleSidebarToggle}
                     className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
@@ -243,7 +243,7 @@ export default function Home() {
               <div className={`space-y-4 ${!sidebarOpen ? 'hidden' : ''}`}>
                 {/* Logo */}
                 <div className="px-1">
-                  <img src="/logo-white.svg" alt="LexStream" className="h-7" />
+                  <img src="/logo-white.svg" alt="LexLens" className="h-10" />
                 </div>
                 <SearchBar onSearch={handleSearch} initialQuery={searchQuery} dark />
                 <FilterBar
@@ -304,11 +304,8 @@ export default function Home() {
               {/* Collapsed icons - desktop only when collapsed */}
               {!sidebarOpen && (
                 <div className="hidden lg:flex flex-col items-center gap-1">
-                  {/* Logo icon */}
-                  <svg viewBox="0 0 80 100" className="w-7 h-9 text-brand-accent mb-1">
-                    <circle cx="40" cy="35" r="30" fill="currentColor" />
-                    <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
-                  </svg>
+                  {/* Logo icon — magnifying glass */}
+                  <img src="/logo-icon.svg" alt="LexLens" className="w-7 h-7 mb-1" />
                   <div className="w-6 border-t border-white/15 my-1" />
                   {/* Search */}
                   <div className="relative group">

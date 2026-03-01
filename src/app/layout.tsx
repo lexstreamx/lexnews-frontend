@@ -3,7 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
-  title: "LexStream — Legal Intelligence Platform",
+  title: "LexLens — Legal Intelligence Platform",
   description: "AI-categorized legal news, blogposts, judgments & regulatory updates",
 };
 

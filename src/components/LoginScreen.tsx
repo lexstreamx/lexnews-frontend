@@ -27,7 +27,7 @@ export default function LoginScreen() {
             <circle cx="40" cy="35" r="30" fill="currentColor" />
             <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
           </svg>
-          <h1 className="font-heading text-3xl font-bold text-brand-accent tracking-tight">LexStream</h1>
+          <h1 className="font-heading text-3xl font-bold text-brand-accent tracking-tight">LexLens</h1>
         </div>
 
         <div className="text-center mb-6">
@@ -87,7 +87,7 @@ export default function LoginScreen() {
         </form>
 
         <p className="text-brand-muted text-xs text-center mt-6">
-          Use your LexStream Academy credentials to access the platform.
+          Use your LexStream Academy credentials to access LexLens.
         </p>
       </div>
     </div>
