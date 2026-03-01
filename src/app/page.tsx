@@ -184,13 +184,7 @@ export default function Home() {
               {/* Mobile compact bar - shown when sidebar is closed on mobile */}
               {!sidebarOpen && (
                 <div className="flex lg:hidden items-center justify-between px-1">
-                  <div className="flex items-center gap-2">
-                    <svg viewBox="0 0 80 100" className="w-6 h-7 text-brand-accent flex-shrink-0">
-                      <circle cx="40" cy="35" r="30" fill="currentColor" />
-                      <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
-                    </svg>
-                    <span className="font-heading text-sm font-bold text-brand-accent tracking-tight">LexStream</span>
-                  </div>
+                  <img src="/logo-white.svg" alt="LexStream" className="h-5" />
                   <button
                     onClick={handleSidebarToggle}
                     className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
@@ -238,12 +232,8 @@ export default function Home() {
               {/* Expanded content - hidden on all viewports when sidebar is closed */}
               <div className={`space-y-4 ${!sidebarOpen ? 'hidden' : ''}`}>
                 {/* Logo */}
-                <div className="flex items-center gap-2.5 px-1">
-                  <svg viewBox="0 0 80 100" className="w-7 h-9 text-brand-accent flex-shrink-0">
-                    <circle cx="40" cy="35" r="30" fill="currentColor" />
-                    <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
-                  </svg>
-                  <span className="font-heading text-base font-bold text-brand-accent tracking-tight">LexStream</span>
+                <div className="px-1">
+                  <img src="/logo-white.svg" alt="LexStream" className="h-7" />
                 </div>
                 <SearchBar onSearch={handleSearch} initialQuery={searchQuery} dark />
                 <FilterBar
