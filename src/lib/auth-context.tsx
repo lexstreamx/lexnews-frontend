@@ -10,6 +10,7 @@ export interface User {
   display_name: string;
   avatar_url: string | null;
   category_slugs: string[];
+  jurisdiction: string | null;
   learnworlds_tags: string[];
 }
 

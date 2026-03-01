@@ -36,13 +36,18 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filtersReady, setFiltersReady] = useState(false);
   const initialCategoriesSet = useRef(false);
+  const initialJurisdictionsSet = useRef(false);
 
-  // Pre-select user's categories from their LearnWorlds tags, then mark ready
+  // Pre-select user's categories and jurisdiction from their LearnWorlds tags, then mark ready
   useEffect(() => {
     if (user) {
       if (user.category_slugs.length > 0 && !initialCategoriesSet.current) {
         setSelectedCategories(user.category_slugs);
         initialCategoriesSet.current = true;
+      }
+      if (user.jurisdiction && !initialJurisdictionsSet.current) {
+        setSelectedJurisdictions([user.jurisdiction, 'EU', 'International']);
+        initialJurisdictionsSet.current = true;
       }
       setFiltersReady(true);
     }
