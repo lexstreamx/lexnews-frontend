@@ -10,14 +10,17 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          body: '#0D2B00',
-          heading: '#FE6728',
-          accent: '#FE6728',
+          body: '#3D4233',
+          sidebar: '#242E16',
+          heading: '#242E16',
+          accent: '#C2785C',
           bg: '#FBF9F5',
           'bg-card': '#FFFFFF',
-          'bg-hover': '#F5F0E8',
-          muted: '#6B7B64',
-          border: '#E2DDD4',
+          'bg-hover': '#E6CEBC',
+          muted: '#A2A182',
+          border: '#DDD0C3',
+          chestnut: '#8E412E',
+          gold: '#E3B45E',
         },
       },
       fontFamily: {

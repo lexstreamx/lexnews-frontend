@@ -69,7 +69,7 @@ function MultiSelectDropdown({
         className={`w-full flex items-center justify-between px-3 py-2 text-sm border rounded-lg transition-all ${
           selected.length > 0
             ? dark ? 'border-brand-accent/50 bg-brand-accent/15 text-white' : 'border-brand-accent/50 bg-brand-accent/5 text-brand-body'
-            : dark ? 'border-white/20 bg-white/10 text-white/70' : 'border-brand-border bg-white text-brand-muted'
+            : dark ? 'border-[#3A4A2C] bg-[#1E2712] text-[#9AAA8C]' : 'border-brand-border bg-white text-brand-muted'
         }`}
       >
         <span className="truncate">
@@ -210,7 +210,7 @@ export default function FilterBar({
   return (
     <div className="space-y-3">
       {/* Feed type tabs */}
-      <div className={`flex flex-wrap gap-1 p-1 rounded-lg ${dark ? 'bg-white/10' : 'bg-brand-bg'}`}>
+      <div className={`flex flex-wrap gap-1 p-1 rounded-lg ${dark ? 'bg-[#1E2712]' : 'bg-brand-bg'}`}>
         {FEED_TYPES.map((ft) => (
           <button
             key={ft.value}
@@ -218,7 +218,7 @@ export default function FilterBar({
             className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
               selectedFeedType === ft.value
                 ? dark ? 'bg-brand-accent text-white shadow-sm' : 'bg-brand-body text-white shadow-sm'
-                : dark ? 'text-white/60 hover:text-white' : 'text-brand-muted hover:text-brand-body'
+                : dark ? 'text-[#8A9A7C] hover:text-white' : 'text-brand-muted hover:text-brand-body'
             }`}
           >
             {ft.label}
@@ -228,7 +228,7 @@ export default function FilterBar({
 
       {/* Date range filter */}
       <div className="space-y-2">
-        <div className={`flex flex-wrap gap-1 p-1 rounded-lg ${dark ? 'bg-white/10' : 'bg-brand-bg'}`}>
+        <div className={`flex flex-wrap gap-1 p-1 rounded-lg ${dark ? 'bg-[#1E2712]' : 'bg-brand-bg'}`}>
           {DATE_PRESETS.map((dp) => (
             <button
               key={dp.value}
@@ -240,7 +240,7 @@ export default function FilterBar({
               className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
                 dateFilter.preset === dp.value
                   ? dark ? 'bg-brand-accent text-white shadow-sm' : 'bg-brand-body text-white shadow-sm'
-                  : dark ? 'text-white/60 hover:text-white' : 'text-brand-muted hover:text-brand-body'
+                  : dark ? 'text-[#8A9A7C] hover:text-white' : 'text-brand-muted hover:text-brand-body'
               }`}
             >
               {dp.label}
@@ -250,27 +250,27 @@ export default function FilterBar({
         {dateFilter.preset === 'custom' && (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
-              <span className={`text-xs shrink-0 ${dark ? 'text-white/50' : 'text-brand-muted'}`}>From</span>
+              <span className={`text-xs shrink-0 ${dark ? 'text-[#7A8A6C]' : 'text-brand-muted'}`}>From</span>
               <input
                 type="date"
                 value={dateFilter.from || ''}
                 onChange={(e) => onDateFilterChange({ ...dateFilter, from: e.target.value })}
                 className={`w-full px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
                   dark
-                    ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
+                    ? 'bg-[#1E2712] border-[#3A4A2C] text-white [color-scheme:dark]'
                     : 'bg-white border-brand-border text-brand-body'
                 }`}
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-xs shrink-0 ${dark ? 'text-white/50' : 'text-brand-muted'}`}>To</span>
+              <span className={`text-xs shrink-0 ${dark ? 'text-[#7A8A6C]' : 'text-brand-muted'}`}>To</span>
               <input
                 type="date"
                 value={dateFilter.to || ''}
                 onChange={(e) => onDateFilterChange({ ...dateFilter, to: e.target.value })}
                 className={`w-full px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
                   dark
-                    ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
+                    ? 'bg-[#1E2712] border-[#3A4A2C] text-white [color-scheme:dark]'
                     : 'bg-white border-brand-border text-brand-body'
                 }`}
               />

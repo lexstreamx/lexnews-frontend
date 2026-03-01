@@ -281,7 +281,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
           {/* Overlay badges */}
           <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${article.feed_type === 'news' ? 'bg-brand-body text-white' : article.feed_type === 'blogpost' ? 'bg-brand-body text-white' : article.feed_type === 'judgment' ? 'bg-amber-700 text-white' : 'bg-green-700 text-white'}`}>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${article.feed_type === 'news' ? 'bg-brand-body text-white' : article.feed_type === 'blogpost' ? 'bg-brand-body text-white' : article.feed_type === 'judgment' ? 'bg-brand-chestnut text-white' : 'bg-brand-gold text-white'}`}>
               {docLabel || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
             </span>
             {article.jurisdiction && (
@@ -296,7 +296,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
             <button
               onClick={toggleRead}
               className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm transition-colors cursor-pointer ${
-                read ? 'bg-brand-accent text-white' : 'bg-[#DDEAE3] text-brand-body'
+                read ? 'bg-brand-accent text-white' : 'bg-brand-accent/15 text-brand-body'
               }`}
             >
               {read ? 'Read' : 'Unread'}
@@ -336,7 +336,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
                 <button
                   key={cat.id}
                   onClick={(e) => { e.stopPropagation(); onCategoryClick?.(cat.slug); }}
-                  className="px-2 py-0.5 bg-brand-body/85 text-white text-xs rounded whitespace-nowrap hover:bg-brand-accent transition-colors cursor-pointer"
+                  className="px-2 py-0.5 bg-brand-sidebar text-white text-xs rounded whitespace-nowrap hover:bg-brand-accent transition-colors cursor-pointer"
                 >
                   {cat.name}
                 </button>
@@ -421,7 +421,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
             <button
               onClick={toggleRead}
               className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors cursor-pointer ${
-                read ? 'bg-brand-accent text-white' : 'bg-[#DDEAE3] text-brand-body'
+                read ? 'bg-brand-accent text-white' : 'bg-brand-accent/15 text-brand-body'
               }`}
             >
               {read ? 'Read' : 'Unread'}
@@ -497,7 +497,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         <button
           onClick={toggleRead}
           className={`text-[10px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
-            read ? 'bg-brand-accent text-white' : 'bg-[#DDEAE3] text-brand-body'
+            read ? 'bg-brand-accent text-white' : 'bg-brand-accent/15 text-brand-body'
           }`}
         >
           {read ? 'Read' : 'Unread'}

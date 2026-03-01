@@ -190,14 +190,14 @@ export default function Home() {
         } gap-6`}>
           {/* Sidebar */}
           <aside className={`overflow-visible ${!sidebarOpen ? 'relative z-10' : ''}`}>
-            <div className={`bg-brand-body rounded-xl lg:sticky lg:top-6 overflow-visible ${sidebarOpen ? 'p-4' : 'p-2 lg:py-3 lg:px-2'}`}>
+            <div className={`bg-brand-sidebar rounded-xl lg:sticky lg:top-6 overflow-visible ${sidebarOpen ? 'p-4' : 'p-2 lg:py-3 lg:px-2'}`}>
               {/* Mobile compact bar - shown when sidebar is closed on mobile */}
               {!sidebarOpen && (
                 <div className="flex lg:hidden items-center justify-between px-1">
                   <img src="/logo-white.svg" alt="LexLens" className="h-7" />
                   <button
                     onClick={handleSidebarToggle}
-                    className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    className="p-1.5 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors"
                     title="Expand sidebar"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -211,7 +211,7 @@ export default function Home() {
               <div className={`hidden lg:flex ${sidebarOpen ? 'justify-end' : 'justify-center'} mb-3`}>
                 <button
                   onClick={handleSidebarToggle}
-                  className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                  className="p-1.5 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors"
                   title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -229,7 +229,7 @@ export default function Home() {
                 <div className="flex lg:hidden justify-end mb-2">
                   <button
                     onClick={handleSidebarToggle}
-                    className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    className="p-1.5 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors"
                     title="Collapse sidebar"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -270,7 +270,7 @@ export default function Home() {
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                     showSaved
                       ? 'bg-brand-accent text-white'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                      : 'text-[#9AAA8C] hover:text-white hover:bg-[#1E2712]'
                   }`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={showSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={showSaved ? 0 : 1.5} className="w-4 h-4 flex-shrink-0">
@@ -280,7 +280,7 @@ export default function Home() {
                 </button>
 
                 {/* User info */}
-                <div className="border-t border-white/15 pt-3 mt-2">
+                <div className="border-t border-[#3A4A2C] pt-3 mt-2">
                   <div className="flex items-center gap-2.5 px-1">
                     <div className="w-7 h-7 rounded-full bg-brand-accent/20 text-brand-accent flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {(user.display_name || user.email)[0].toUpperCase()}
@@ -290,7 +290,7 @@ export default function Home() {
                     </div>
                     <a
                       href="https://academy.lexstream.io/start"
-                      className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#6A7A5C] hover:text-white hover:bg-[#1E2712] transition-colors cursor-pointer"
                       title="Return to Academy"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -304,14 +304,11 @@ export default function Home() {
               {/* Collapsed icons - desktop only when collapsed */}
               {!sidebarOpen && (
                 <div className="hidden lg:flex flex-col items-center gap-1">
-                  {/* Logo icon — magnifying glass */}
-                  <img src="/logo-icon.svg" alt="LexLens" className="w-7 h-7 mb-1" />
-                  <div className="w-6 border-t border-white/15 my-1" />
                   {/* Search */}
                   <div className="relative group">
                     <button
                       onClick={handleSidebarToggle}
-                      className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                      className="p-2 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -320,7 +317,7 @@ export default function Home() {
                     <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Search</span>
                   </div>
 
-                  <div className="w-6 border-t border-white/15 my-1" />
+                  <div className="w-6 border-t border-[#3A4A2C] my-1" />
 
                   {/* Feed type icons */}
                   {([
@@ -336,7 +333,7 @@ export default function Home() {
                         className={`p-2 rounded-lg transition-colors ${
                           feedType === ft.value
                             ? 'bg-brand-accent text-white'
-                            : 'text-white/60 hover:text-white hover:bg-white/10'
+                            : 'text-[#8A9A7C] hover:text-white hover:bg-[#1E2712]'
                         }`}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -347,14 +344,14 @@ export default function Home() {
                     </div>
                   ))}
 
-                  <div className="w-6 border-t border-white/15 my-1" />
+                  <div className="w-6 border-t border-[#3A4A2C] my-1" />
 
                   {/* Jurisdiction */}
                   <div className="relative group">
                     <button
                       onClick={handleSidebarToggle}
                       className={`p-2 rounded-lg transition-colors relative ${
-                        selectedJurisdictions.length > 0 ? 'text-brand-accent' : 'text-white/60 hover:text-white hover:bg-white/10'
+                        selectedJurisdictions.length > 0 ? 'text-brand-accent' : 'text-[#8A9A7C] hover:text-white hover:bg-[#1E2712]'
                       }`}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -374,7 +371,7 @@ export default function Home() {
                     <button
                       onClick={handleSidebarToggle}
                       className={`p-2 rounded-lg transition-colors relative ${
-                        selectedCategories.length > 0 ? 'text-brand-accent' : 'text-white/60 hover:text-white hover:bg-white/10'
+                        selectedCategories.length > 0 ? 'text-brand-accent' : 'text-[#8A9A7C] hover:text-white hover:bg-[#1E2712]'
                       }`}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -395,7 +392,7 @@ export default function Home() {
                     <button
                       onClick={() => setShowSaved(!showSaved)}
                       className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                        showSaved ? 'bg-brand-accent text-white' : 'text-white/60 hover:text-white hover:bg-white/10'
+                        showSaved ? 'bg-brand-accent text-white' : 'text-[#8A9A7C] hover:text-white hover:bg-[#1E2712]'
                       }`}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={showSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={showSaved ? 0 : 1.5} className="w-5 h-5">
@@ -407,11 +404,11 @@ export default function Home() {
 
                   {/* Spacer + user avatar + academy link */}
                   <div className="flex-1" />
-                  <div className="w-6 border-t border-white/15 my-1" />
+                  <div className="w-6 border-t border-[#3A4A2C] my-1" />
                   <div className="relative group">
                     <a
                       href="https://academy.lexstream.io/start"
-                      className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                      className="p-2 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors cursor-pointer"
                       title="Return to Academy"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
