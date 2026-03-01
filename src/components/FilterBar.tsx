@@ -142,15 +142,31 @@ function MultiSelectDropdown({
   );
 }
 
+const COURT_OPTIONS = [
+  { value: 'Court of Justice', label: 'Court of Justice' },
+  { value: 'General Court', label: 'General Court' },
+];
+
+const DOC_TYPE_OPTIONS = [
+  { value: 'Judgment', label: 'Judgment' },
+  { value: 'Opinion of Advocate General', label: 'AG Opinion' },
+  { value: 'Press Release', label: 'Press Release' },
+  { value: 'Order', label: 'Order' },
+];
+
 interface FilterBarProps {
   categories: Category[];
   jurisdictions: string[];
   selectedFeedType: FeedType;
   selectedCategories: string[];
   selectedJurisdictions: string[];
+  selectedCourts: string[];
+  selectedDocTypes: string[];
   onFeedTypeChange: (type: FeedType) => void;
   onCategoriesChange: (slugs: string[]) => void;
   onJurisdictionsChange: (jurisdictions: string[]) => void;
+  onCourtsChange: (courts: string[]) => void;
+  onDocTypesChange: (docTypes: string[]) => void;
   dark?: boolean;
 }
 
@@ -160,9 +176,13 @@ export default function FilterBar({
   selectedFeedType,
   selectedCategories,
   selectedJurisdictions,
+  selectedCourts,
+  selectedDocTypes,
   onFeedTypeChange,
   onCategoriesChange,
   onJurisdictionsChange,
+  onCourtsChange,
+  onDocTypesChange,
   dark = false,
 }: FilterBarProps) {
   const categoryOptions = categories.map((cat) => ({
@@ -203,6 +223,26 @@ export default function FilterBar({
         searchable={jurisdictions.length > 8}
         dark={dark}
       />
+
+      {/* Caselaw-specific filters */}
+      {selectedFeedType === 'judgment' && (
+        <div className="space-y-2">
+          <MultiSelectDropdown
+            label="Court"
+            options={COURT_OPTIONS}
+            selected={selectedCourts}
+            onChange={onCourtsChange}
+            dark={dark}
+          />
+          <MultiSelectDropdown
+            label="Document Type"
+            options={DOC_TYPE_OPTIONS}
+            selected={selectedDocTypes}
+            onChange={onDocTypesChange}
+            dark={dark}
+          />
+        </div>
+      )}
 
       {/* Categories multi-select */}
       <MultiSelectDropdown

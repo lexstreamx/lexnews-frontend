@@ -26,6 +26,8 @@ export default function Home() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [jurisdictions, setJurisdictions] = useState<string[]>([]);
   const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
+  const [selectedCourts, setSelectedCourts] = useState<string[]>([]);
+  const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [page, setPage] = useState(1);
@@ -72,6 +74,8 @@ export default function Home() {
         feed_type: feedType !== 'all' ? feedType : undefined,
         categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         jurisdictions: selectedJurisdictions.length > 0 ? selectedJurisdictions : undefined,
+        courts: selectedCourts.length > 0 ? selectedCourts : undefined,
+        doc_types: selectedDocTypes.length > 0 ? selectedDocTypes : undefined,
         search: searchQuery || undefined,
         saved_only: showSaved || undefined,
       });
@@ -82,7 +86,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [page, feedType, selectedCategories, selectedJurisdictions, searchQuery, showSaved]);
+  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved]);
 
   const loadFilters = useCallback(async () => {
     try {
@@ -108,7 +112,16 @@ export default function Home() {
   useEffect(() => {
     setPage(1);
     setSelectedArticle(null);
-  }, [feedType, selectedCategories, selectedJurisdictions, searchQuery, showSaved]);
+  }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved]);
+
+  function handleFeedTypeChange(type: FeedType) {
+    setFeedType(type);
+    // Clear caselaw-specific filters when switching away from Caselaw
+    if (type !== 'judgment') {
+      setSelectedCourts([]);
+      setSelectedDocTypes([]);
+    }
+  }
 
   function handleSearch(query: string) {
     setSearchQuery(query);
@@ -197,9 +210,13 @@ export default function Home() {
                   selectedFeedType={feedType}
                   selectedCategories={selectedCategories}
                   selectedJurisdictions={selectedJurisdictions}
-                  onFeedTypeChange={setFeedType}
+                  selectedCourts={selectedCourts}
+                  selectedDocTypes={selectedDocTypes}
+                  onFeedTypeChange={handleFeedTypeChange}
                   onCategoriesChange={setSelectedCategories}
                   onJurisdictionsChange={setSelectedJurisdictions}
+                  onCourtsChange={setSelectedCourts}
+                  onDocTypesChange={setSelectedDocTypes}
                   dark
                 />
 
@@ -274,7 +291,7 @@ export default function Home() {
                   ]).map((ft) => (
                     <div key={ft.value} className="relative group">
                       <button
-                        onClick={() => setFeedType(ft.value)}
+                        onClick={() => handleFeedTypeChange(ft.value)}
                         className={`p-2 rounded-lg transition-colors ${
                           feedType === ft.value
                             ? 'bg-brand-accent text-white'
@@ -371,7 +388,7 @@ export default function Home() {
             {/* View toggle + Active filters summary */}
             <div className="flex items-center justify-between pb-3">
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
-            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || searchQuery || showSaved) && (
+            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || searchQuery || showSaved) && (
               <>
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
@@ -392,12 +409,16 @@ export default function Home() {
                   );
                 })}
                 {selectedJurisdictions.length > 0 && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{selectedJurisdictions.join(', ')}</span>}
+                {selectedCourts.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedCourts.join(', ')}</span>}
+                {selectedDocTypes.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedDocTypes.map(d => d === 'Opinion of Advocate General' ? 'AG Opinion' : d).join(', ')}</span>}
                 {searchQuery && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">&ldquo;{searchQuery}&rdquo;</span>}
                 <button
                   onClick={() => {
                     setFeedType('all');
                     setSelectedCategories([]);
                     setSelectedJurisdictions([]);
+                    setSelectedCourts([]);
+                    setSelectedDocTypes([]);
                     setSearchQuery('');
                     setShowSaved(false);
                   }}

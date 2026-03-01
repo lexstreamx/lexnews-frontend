@@ -31,6 +31,8 @@ interface FetchArticlesParams {
   feed_type?: string;
   categories?: string[];
   jurisdictions?: string[];
+  courts?: string[];
+  doc_types?: string[];
   search?: string;
   saved_only?: boolean;
 }
@@ -43,6 +45,8 @@ export async function fetchArticles(params: FetchArticlesParams = {}) {
   if (params.feed_type && params.feed_type !== 'all') searchParams.set('feed_type', params.feed_type);
   if (params.categories && params.categories.length > 0) searchParams.set('category', params.categories.join(','));
   if (params.jurisdictions && params.jurisdictions.length > 0) searchParams.set('jurisdiction', params.jurisdictions.join(','));
+  if (params.courts && params.courts.length > 0) searchParams.set('court', params.courts.join(','));
+  if (params.doc_types && params.doc_types.length > 0) searchParams.set('doc_type', params.doc_types.join(','));
   if (params.search) searchParams.set('search', params.search);
   if (params.saved_only) searchParams.set('saved_only', 'true');
 
