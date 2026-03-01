@@ -172,11 +172,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <main className={`mx-auto px-4 py-6 ${selectedArticle ? 'max-w-[1600px]' : viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
+      <main className={`mx-auto px-4 py-6 ${selectedArticle ? 'max-w-[1800px]' : viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
         <div className={`grid grid-cols-1 ${
           sidebarOpen
-            ? (selectedArticle ? 'lg:grid-cols-[280px_1fr_380px]' : 'lg:grid-cols-[280px_1fr]')
-            : (selectedArticle ? 'lg:grid-cols-[56px_1fr_380px]' : 'lg:grid-cols-[56px_1fr]')
+            ? (selectedArticle ? 'lg:grid-cols-[280px_1fr_520px]' : 'lg:grid-cols-[280px_1fr]')
+            : (selectedArticle ? 'lg:grid-cols-[56px_1fr_520px]' : 'lg:grid-cols-[56px_1fr]')
         } gap-6`}>
           {/* Sidebar */}
           <aside className={`overflow-visible ${!sidebarOpen ? 'relative z-10' : ''}`}>
