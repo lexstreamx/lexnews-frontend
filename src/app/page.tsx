@@ -33,7 +33,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filtersReady, setFiltersReady] = useState(false);
   const initialCategoriesSet = useRef(false);
 
@@ -55,7 +55,7 @@ export default function Home() {
       setViewMode(stored);
     }
     const sb = localStorage.getItem('lexnews-sidebar');
-    if (sb === 'closed') setSidebarOpen(false);
+    if (sb === 'open') setSidebarOpen(true);
   }, []);
 
   function handleSidebarToggle() {
@@ -175,8 +175,30 @@ export default function Home() {
         } gap-6`}>
           {/* Sidebar */}
           <aside className={`overflow-visible ${!sidebarOpen ? 'relative z-10' : ''}`}>
-            <div className={`bg-brand-body rounded-xl lg:sticky lg:top-6 overflow-visible ${sidebarOpen ? 'p-4' : 'p-4 lg:py-3 lg:px-2'}`}>
-              {/* Toggle button - desktop only */}
+            <div className={`bg-brand-body rounded-xl lg:sticky lg:top-6 overflow-visible ${sidebarOpen ? 'p-4' : 'p-2 lg:py-3 lg:px-2'}`}>
+              {/* Mobile compact bar - shown when sidebar is closed on mobile */}
+              {!sidebarOpen && (
+                <div className="flex lg:hidden items-center justify-between px-1">
+                  <div className="flex items-center gap-2">
+                    <svg viewBox="0 0 80 100" className="w-6 h-7 text-brand-accent flex-shrink-0">
+                      <circle cx="40" cy="35" r="30" fill="currentColor" />
+                      <rect x="12" y="75" width="56" height="14" rx="3" fill="currentColor" />
+                    </svg>
+                    <span className="font-heading text-sm font-bold text-brand-accent tracking-tight">LexStream</span>
+                  </div>
+                  <button
+                    onClick={handleSidebarToggle}
+                    className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    title="Expand sidebar"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {/* Desktop toggle button - chevron collapse/expand */}
               <div className={`hidden lg:flex ${sidebarOpen ? 'justify-end' : 'justify-center'} mb-3`}>
                 <button
                   onClick={handleSidebarToggle}
@@ -193,8 +215,23 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Expanded content - always on mobile, conditional on desktop */}
-              <div className={`space-y-4 ${!sidebarOpen ? 'lg:hidden' : ''}`}>
+              {/* Mobile close button - shown when sidebar is expanded on mobile */}
+              {sidebarOpen && (
+                <div className="flex lg:hidden justify-end mb-2">
+                  <button
+                    onClick={handleSidebarToggle}
+                    className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    title="Collapse sidebar"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {/* Expanded content - hidden on all viewports when sidebar is closed */}
+              <div className={`space-y-4 ${!sidebarOpen ? 'hidden' : ''}`}>
                 {/* Logo */}
                 <div className="flex items-center gap-2.5 px-1">
                   <svg viewBox="0 0 80 100" className="w-7 h-9 text-brand-accent flex-shrink-0">

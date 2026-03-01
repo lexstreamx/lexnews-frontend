@@ -375,13 +375,10 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
   }
 
   // List view
-  const opacity = Math.max(0.4, Math.min(1, article.relevance_score));
-
   return (
     <article
       onClick={() => onSelect?.(article)}
       className={`article-enter bg-brand-bg-card border rounded-lg p-4 hover:border-brand-accent/30 transition-all duration-200 group flex gap-4 ${onSelect ? 'cursor-pointer' : ''} ${isSelected ? 'border-brand-accent ring-2 ring-brand-accent/20' : 'border-brand-border'}`}
-      style={{ opacity }}
     >
       {/* Thumbnail */}
       <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-brand-bg relative">
