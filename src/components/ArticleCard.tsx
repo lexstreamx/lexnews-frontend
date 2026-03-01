@@ -144,6 +144,9 @@ export function getJudgmentDisplayTitle(article: Article): string {
   if (caseNum) {
     if (jm.parties) return `${caseNum} | ${jm.parties}`;
 
+    // If the title already contains the case number (e.g. STJ titles), return it directly
+    if (cleaned.includes(caseNum)) return cleaned;
+
     // Don't append titles that are just CELEX numbers, ECLI fallbacks, or redundant
     const isCelex = /^6\d{4}[CT][JCOA]\d+$/.test(cleaned);
     const isEcliFallback = /^(?:Court of Justice|General Court)\s*[—–-]/i.test(cleaned);
