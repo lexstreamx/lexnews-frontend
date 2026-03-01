@@ -53,3 +53,16 @@ h1, h2, h3, h4, h5, h6 {
 .panel-enter {
   animation: slideInRight 0.25s ease-out;
 }
+
+/* Disable hover effects on touch devices to prevent double-tap issue */
+@media (hover: none) {
+  .group:hover .group-hover\:scale-105 {
+    transform: none;
+  }
+  .group:hover .group-hover\:opacity-100 {
+    opacity: 0;
+  }
+  article:hover {
+    box-shadow: none !important;
+  }
+}
