@@ -248,27 +248,33 @@ export default function FilterBar({
           ))}
         </div>
         {dateFilter.preset === 'custom' && (
-          <div className="flex gap-2">
-            <input
-              type="date"
-              value={dateFilter.from || ''}
-              onChange={(e) => onDateFilterChange({ ...dateFilter, from: e.target.value })}
-              className={`flex-1 px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
-                dark
-                  ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
-                  : 'bg-white border-brand-border text-brand-body'
-              }`}
-            />
-            <input
-              type="date"
-              value={dateFilter.to || ''}
-              onChange={(e) => onDateFilterChange({ ...dateFilter, to: e.target.value })}
-              className={`flex-1 px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
-                dark
-                  ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
-                  : 'bg-white border-brand-border text-brand-body'
-              }`}
-            />
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <span className={`text-xs shrink-0 ${dark ? 'text-white/50' : 'text-brand-muted'}`}>From</span>
+              <input
+                type="date"
+                value={dateFilter.from || ''}
+                onChange={(e) => onDateFilterChange({ ...dateFilter, from: e.target.value })}
+                className={`w-full px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
+                  dark
+                    ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
+                    : 'bg-white border-brand-border text-brand-body'
+                }`}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs shrink-0 ${dark ? 'text-white/50' : 'text-brand-muted'}`}>To</span>
+              <input
+                type="date"
+                value={dateFilter.to || ''}
+                onChange={(e) => onDateFilterChange({ ...dateFilter, to: e.target.value })}
+                className={`w-full px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
+                  dark
+                    ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
+                    : 'bg-white border-brand-border text-brand-body'
+                }`}
+              />
+            </div>
           </div>
         )}
       </div>
