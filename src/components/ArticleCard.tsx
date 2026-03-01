@@ -336,7 +336,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
                 <button
                   key={cat.id}
                   onClick={(e) => { e.stopPropagation(); onCategoryClick?.(cat.slug); }}
-                  className="px-2 py-0.5 bg-brand-sidebar text-white text-xs rounded whitespace-nowrap hover:bg-brand-accent transition-colors cursor-pointer"
+                  className="px-2 py-0.5 bg-[#6B7259] text-white text-xs rounded whitespace-nowrap hover:bg-brand-accent transition-colors cursor-pointer"
                 >
                   {cat.name}
                 </button>
@@ -346,7 +346,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
           {/* Description */}
           {article.description && (
-            <p className="text-sm text-brand-muted mb-3 flex-1 overflow-hidden line-clamp-3 leading-relaxed">
+            <p className="text-sm text-brand-body mb-3 flex-1 overflow-hidden line-clamp-3 leading-relaxed">
               {article.description}
             </p>
           )}
@@ -446,7 +446,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
         {/* Description */}
         {article.description && (
-          <p className="mt-1 text-xs sm:text-sm text-brand-muted line-clamp-2 sm:line-clamp-1 leading-relaxed">
+          <p className="mt-1 text-xs sm:text-sm text-brand-body line-clamp-2 sm:line-clamp-1 leading-relaxed">
             {article.description}
           </p>
         )}
