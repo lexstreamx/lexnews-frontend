@@ -8,7 +8,7 @@ import ArticleDetailPanel from '@/components/ArticleDetailPanel';
 import LoginScreen from '@/components/LoginScreen';
 import { useAuth } from '@/lib/auth-context';
 import { fetchArticles, fetchCategories, fetchJurisdictions, markRead } from '@/lib/api';
-import { Article, Category, FeedType, ViewMode } from '@/types';
+import { Article, Category, FeedType, ViewMode, DateFilter } from '@/types';
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
@@ -30,6 +30,7 @@ export default function Home() {
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaved, setShowSaved] = useState(false);
+  const [dateFilter, setDateFilter] = useState<DateFilter>({ preset: 'all' });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -83,6 +84,15 @@ export default function Home() {
         doc_types: selectedDocTypes.length > 0 ? selectedDocTypes : undefined,
         search: searchQuery || undefined,
         saved_only: showSaved || undefined,
+        date_range: dateFilter.preset !== 'all' && dateFilter.preset !== 'custom'
+          ? dateFilter.preset
+          : undefined,
+        date_from: dateFilter.preset === 'custom' && dateFilter.from
+          ? dateFilter.from
+          : undefined,
+        date_to: dateFilter.preset === 'custom' && dateFilter.to
+          ? dateFilter.to
+          : undefined,
       });
       setArticles(data.articles);
       setTotalPages(data.pagination.pages);
@@ -91,7 +101,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved]);
+  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved, dateFilter]);
 
   const loadFilters = useCallback(async () => {
     try {
@@ -117,7 +127,7 @@ export default function Home() {
   useEffect(() => {
     setPage(1);
     setSelectedArticle(null);
-  }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved]);
+  }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved, dateFilter]);
 
   function handleFeedTypeChange(type: FeedType) {
     setFeedType(type);
@@ -249,6 +259,8 @@ export default function Home() {
                   onJurisdictionsChange={setSelectedJurisdictions}
                   onCourtsChange={setSelectedCourts}
                   onDocTypesChange={setSelectedDocTypes}
+                  dateFilter={dateFilter}
+                  onDateFilterChange={setDateFilter}
                   dark
                 />
 
@@ -421,10 +433,24 @@ export default function Home() {
             {/* View toggle + Active filters summary */}
             <div className="flex items-center justify-between pb-3">
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
-            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || searchQuery || showSaved) && (
+            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all') && (
               <>
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
+                {dateFilter.preset !== 'all' && (
+                  <button
+                    onClick={() => setDateFilter({ preset: 'all' })}
+                    className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium hover:bg-brand-accent hover:text-white transition-colors flex items-center gap-1"
+                  >
+                    {dateFilter.preset === 'today' ? 'Today' :
+                     dateFilter.preset === '7d' ? 'Last 7 Days' :
+                     dateFilter.preset === '30d' ? 'Last Month' :
+                     `${dateFilter.from || '...'} — ${dateFilter.to || '...'}`}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
                 {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{{ news: 'News', blogpost: 'Blogposts', judgment: 'Case Law', regulatory: 'Regulatory' }[feedType] || feedType}</span>}
                 {selectedCategories.map(slug => {
                   const cat = categories.find(c => c.slug === slug);
@@ -454,6 +480,7 @@ export default function Home() {
                     setSelectedDocTypes([]);
                     setSearchQuery('');
                     setShowSaved(false);
+                    setDateFilter({ preset: 'all' });
                   }}
                   className="text-xs text-brand-accent hover:underline"
                 >

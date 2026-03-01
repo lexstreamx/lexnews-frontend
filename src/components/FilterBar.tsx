@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Category, FeedType } from '@/types';
+import { Category, FeedType, DatePreset, DateFilter } from '@/types';
 
 const FEED_TYPES: { value: FeedType; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -9,6 +9,14 @@ const FEED_TYPES: { value: FeedType; label: string }[] = [
   { value: 'blogpost', label: 'Blogposts' },
   { value: 'judgment', label: 'Case Law' },
   { value: 'regulatory', label: 'Regulatory' },
+];
+
+const DATE_PRESETS: { value: DatePreset; label: string }[] = [
+  { value: 'all', label: 'All Time' },
+  { value: 'today', label: 'Today' },
+  { value: '7d', label: 'Last 7 Days' },
+  { value: '30d', label: 'Last Month' },
+  { value: 'custom', label: 'Custom' },
 ];
 
 // Reusable multi-select dropdown
@@ -167,6 +175,8 @@ interface FilterBarProps {
   onJurisdictionsChange: (jurisdictions: string[]) => void;
   onCourtsChange: (courts: string[]) => void;
   onDocTypesChange: (docTypes: string[]) => void;
+  dateFilter: DateFilter;
+  onDateFilterChange: (filter: DateFilter) => void;
   dark?: boolean;
 }
 
@@ -183,6 +193,8 @@ export default function FilterBar({
   onJurisdictionsChange,
   onCourtsChange,
   onDocTypesChange,
+  dateFilter,
+  onDateFilterChange,
   dark = false,
 }: FilterBarProps) {
   const categoryOptions = categories.map((cat) => ({
@@ -212,6 +224,53 @@ export default function FilterBar({
             {ft.label}
           </button>
         ))}
+      </div>
+
+      {/* Date range filter */}
+      <div className="space-y-2">
+        <div className={`flex flex-wrap gap-1 p-1 rounded-lg ${dark ? 'bg-white/10' : 'bg-brand-bg'}`}>
+          {DATE_PRESETS.map((dp) => (
+            <button
+              key={dp.value}
+              onClick={() => onDateFilterChange(
+                dp.value === 'custom'
+                  ? { preset: 'custom', from: dateFilter.from || '', to: dateFilter.to || '' }
+                  : { preset: dp.value }
+              )}
+              className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
+                dateFilter.preset === dp.value
+                  ? dark ? 'bg-brand-accent text-white shadow-sm' : 'bg-brand-body text-white shadow-sm'
+                  : dark ? 'text-white/60 hover:text-white' : 'text-brand-muted hover:text-brand-body'
+              }`}
+            >
+              {dp.label}
+            </button>
+          ))}
+        </div>
+        {dateFilter.preset === 'custom' && (
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={dateFilter.from || ''}
+              onChange={(e) => onDateFilterChange({ ...dateFilter, from: e.target.value })}
+              className={`flex-1 px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
+                dark
+                  ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
+                  : 'bg-white border-brand-border text-brand-body'
+              }`}
+            />
+            <input
+              type="date"
+              value={dateFilter.to || ''}
+              onChange={(e) => onDateFilterChange({ ...dateFilter, to: e.target.value })}
+              className={`flex-1 px-2.5 py-1.5 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/20 focus:border-brand-accent/50 ${
+                dark
+                  ? 'bg-white/10 border-white/20 text-white [color-scheme:dark]'
+                  : 'bg-white border-brand-border text-brand-body'
+              }`}
+            />
+          </div>
+        )}
       </div>
 
       {/* Jurisdiction multi-select */}

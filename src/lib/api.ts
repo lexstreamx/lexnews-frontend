@@ -35,6 +35,9 @@ interface FetchArticlesParams {
   doc_types?: string[];
   search?: string;
   saved_only?: boolean;
+  date_range?: string;
+  date_from?: string;
+  date_to?: string;
 }
 
 export async function fetchArticles(params: FetchArticlesParams = {}) {
@@ -49,6 +52,9 @@ export async function fetchArticles(params: FetchArticlesParams = {}) {
   if (params.doc_types && params.doc_types.length > 0) searchParams.set('doc_type', params.doc_types.join(','));
   if (params.search) searchParams.set('search', params.search);
   if (params.saved_only) searchParams.set('saved_only', 'true');
+  if (params.date_range) searchParams.set('date_range', params.date_range);
+  if (params.date_from) searchParams.set('date_from', params.date_from);
+  if (params.date_to) searchParams.set('date_to', params.date_to);
 
   const res = await fetch(`${API_BASE}/articles?${searchParams.toString()}`, authFetchOpts());
   if (!res.ok) throw new Error('Failed to fetch articles');

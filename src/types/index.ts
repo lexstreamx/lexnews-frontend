@@ -61,3 +61,11 @@ export interface CategoriesResponse {
 export type FeedType = 'all' | 'news' | 'blogpost' | 'judgment' | 'regulatory';
 
 export type ViewMode = 'card' | 'list';
+
+export type DatePreset = 'all' | 'today' | '7d' | '30d' | 'custom';
+
+export interface DateFilter {
+  preset: DatePreset;
+  from?: string;
+  to?: string;
+}
