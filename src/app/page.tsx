@@ -368,9 +368,11 @@ export default function Home() {
 
           {/* Articles area */}
           <div>
-            {/* Active filters summary */}
+            {/* View toggle + Active filters summary */}
+            <div className="flex items-center justify-between pb-3">
+              <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
             {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || searchQuery || showSaved) && (
-              <div className="flex items-center gap-2 text-sm text-brand-muted pb-3 flex-wrap">
+              <>
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
                 {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{feedType}</span>}
@@ -399,12 +401,36 @@ export default function Home() {
                     setSearchQuery('');
                     setShowSaved(false);
                   }}
-                  className="text-xs text-brand-accent hover:underline ml-auto"
+                  className="text-xs text-brand-accent hover:underline"
                 >
                   Clear all
                 </button>
-              </div>
+              </>
             )}
+              </div>
+
+              {/* Card/List view toggle */}
+              <div className="flex items-center gap-1 ml-3 flex-shrink-0">
+                <button
+                  onClick={() => { setViewMode('card'); localStorage.setItem('lexnews-view-mode', 'card'); }}
+                  className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewMode === 'card' ? 'bg-brand-body text-white' : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'}`}
+                  title="Card view"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => { setViewMode('list'); localStorage.setItem('lexnews-view-mode', 'list'); }}
+                  className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-brand-body text-white' : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'}`}
+                  title="List view"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
 
             {/* Error state */}
             {error && (
