@@ -34,7 +34,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filtersReady, setFiltersReady] = useState(false);
   const initialCategoriesSet = useRef(false);
   const initialJurisdictionsSet = useRef(false);
@@ -61,7 +61,7 @@ export default function Home() {
       setViewMode(stored);
     }
     const sb = localStorage.getItem('lexnews-sidebar');
-    if (sb === 'open') setSidebarOpen(true);
+    if (sb === 'closed') setSidebarOpen(false);
   }, []);
 
   function handleSidebarToggle() {
@@ -437,8 +437,8 @@ export default function Home() {
                     className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium hover:bg-brand-accent hover:text-white transition-colors flex items-center gap-1"
                   >
                     {dateFilter.preset === 'today' ? 'Today' :
-                     dateFilter.preset === '7d' ? 'Last 7 Days' :
-                     dateFilter.preset === '30d' ? 'Last Month' :
+                     dateFilter.preset === '7d' ? '7 Days' :
+                     dateFilter.preset === '30d' ? '30 Days' :
                      `${dateFilter.from || '...'} — ${dateFilter.to || '...'}`}
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />

@@ -12,10 +12,10 @@ const FEED_TYPES: { value: FeedType; label: string }[] = [
 ];
 
 const DATE_PRESETS: { value: DatePreset; label: string }[] = [
-  { value: 'all', label: 'All Time' },
+  { value: 'all', label: 'All' },
   { value: 'today', label: 'Today' },
-  { value: '7d', label: 'Last 7 Days' },
-  { value: '30d', label: 'Last Month' },
+  { value: '7d', label: '7 Days' },
+  { value: '30d', label: '30 Days' },
   { value: 'custom', label: 'Custom' },
 ];
 
