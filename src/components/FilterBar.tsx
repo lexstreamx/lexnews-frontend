@@ -9,6 +9,7 @@ const FEED_TYPES: { value: FeedType; label: string }[] = [
   { value: 'blogpost', label: 'Blogposts' },
   { value: 'judgment', label: 'Case Law' },
   { value: 'regulatory', label: 'Regulatory' },
+  { value: 'legislation', label: 'Legislation' },
 ];
 
 const DATE_PRESETS: { value: DatePreset; label: string }[] = [

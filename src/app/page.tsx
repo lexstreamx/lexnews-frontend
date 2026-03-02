@@ -445,7 +445,7 @@ export default function Home() {
                     </svg>
                   </button>
                 )}
-                {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{{ news: 'News', blogpost: 'Blogposts', judgment: 'Case Law', regulatory: 'Regulatory' }[feedType] || feedType}</span>}
+                {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{{ news: 'News', blogpost: 'Blogposts', judgment: 'Case Law', regulatory: 'Regulatory', legislation: 'Legislation' }[feedType] || feedType}</span>}
                 {selectedCategories.map(slug => {
                   const cat = categories.find(c => c.slug === slug);
                   return (

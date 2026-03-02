@@ -32,7 +32,7 @@ export interface Article {
   source_name: string;
   source_url: string;
   published_at: string;
-  feed_type: 'news' | 'blogpost' | 'judgment' | 'regulatory';
+  feed_type: 'news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation';
   jurisdiction: string | null;
   language: string;
   relevance_score: number;
@@ -58,7 +58,7 @@ export interface CategoriesResponse {
   categories: Category[];
 }
 
-export type FeedType = 'all' | 'news' | 'blogpost' | 'judgment' | 'regulatory';
+export type FeedType = 'all' | 'news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation';
 
 export type ViewMode = 'card' | 'list';
 
