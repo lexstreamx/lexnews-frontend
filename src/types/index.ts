@@ -39,6 +39,8 @@ export interface Article {
   categories: Category[];
   is_saved: boolean;
   is_read: boolean;
+  is_important: boolean;
+  important_count: number;
   judgment: JudgmentMetadata | null;
 }
 

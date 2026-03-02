@@ -1,7 +1,7 @@
 'use client';
 
 import { Article, ViewMode } from '@/types';
-import { saveArticle, unsaveArticle, markRead, markUnread } from '@/lib/api';
+import { saveArticle, unsaveArticle, markRead, markUnread, markImportant, unmarkImportant } from '@/lib/api';
 import { useState } from 'react';
 
 export const FEED_TYPE_LABELS: Record<string, string> = {
@@ -98,6 +98,22 @@ export function BookmarkIcon({ saved }: { saved: boolean }) {
         strokeLinejoin="round"
         d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
       />
+    </svg>
+  );
+}
+
+export function ImportantIcon({ active }: { active: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill={active ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth={active ? 0 : 1.5}
+      className="w-4 h-4"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
     </svg>
   );
 }
@@ -227,6 +243,8 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
   const [saved, setSaved] = useState(article.is_saved);
   const [saving, setSaving] = useState(false);
   const [read, setRead] = useState(article.is_read);
+  const [important, setImportant] = useState(article.is_important);
+  const [importantCount, setImportantCount] = useState(article.important_count || 0);
   const [expanded, setExpanded] = useState(false);
   const [imgError, setImgError] = useState(false);
 
@@ -266,6 +284,25 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
       }
     } catch {
       setRead(!newRead);
+    }
+  }
+
+  async function toggleImportant(e: React.MouseEvent) {
+    e.stopPropagation();
+    const wasImportant = important;
+    setImportant(!wasImportant);
+    setImportantCount(prev => wasImportant ? prev - 1 : prev + 1);
+    try {
+      if (wasImportant) {
+        const res = await unmarkImportant(article.id);
+        setImportantCount(res.important_count);
+      } else {
+        const res = await markImportant(article.id);
+        setImportantCount(res.important_count);
+      }
+    } catch {
+      setImportant(wasImportant);
+      setImportantCount(prev => wasImportant ? prev + 1 : prev - 1);
     }
   }
 
@@ -384,7 +421,19 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
           {/* Footer */}
           <div className="flex items-center gap-2 text-xs text-brand-muted mt-auto pt-2 border-t border-brand-border">
-            <span>{timeAgo(article.published_at)}</span>
+            <button
+              onClick={toggleImportant}
+              className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                important
+                  ? 'bg-brand-accent/15 text-brand-accent'
+                  : 'hover:bg-brand-bg-hover text-brand-muted hover:text-brand-body'
+              }`}
+              title={important ? 'Remove importance vote' : 'Mark as important'}
+            >
+              <ImportantIcon active={important} />
+              {importantCount > 0 && <span className="text-[11px] font-medium">{importantCount}</span>}
+            </button>
+            <span className="ml-auto">{timeAgo(article.published_at)}</span>
           </div>
         </div>
       </article>
@@ -435,8 +484,14 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
           <span className="text-xs text-brand-muted">
             {timeAgo(article.published_at)}
           </span>
-          {/* Read + Bookmark inline on mobile */}
+          {/* Important + Read + Bookmark inline on mobile */}
           <div className="flex items-center gap-1 ml-auto sm:hidden">
+            <button
+              onClick={toggleImportant}
+              className={`p-1 rounded-md transition-colors cursor-pointer ${important ? 'text-brand-accent' : 'text-brand-muted hover:text-brand-body'}`}
+            >
+              <ImportantIcon active={important} />
+            </button>
             <button
               onClick={toggleRead}
               className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors cursor-pointer ${
@@ -494,8 +549,20 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
           </div>
         )}
 
-        {/* Categories + source */}
+        {/* Categories + source + important */}
         <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2 flex-wrap">
+          <button
+            onClick={toggleImportant}
+            className={`hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-colors cursor-pointer text-[11px] sm:text-xs ${
+              important
+                ? 'bg-brand-accent/15 text-brand-accent font-medium'
+                : 'text-brand-muted hover:text-brand-body'
+            }`}
+            title={important ? 'Remove importance vote' : 'Mark as important'}
+          >
+            <ImportantIcon active={important} />
+            {importantCount > 0 && <span>{importantCount}</span>}
+          </button>
           {article.categories.slice(0, 3).map((cat) => (
             <button
               key={cat.id}

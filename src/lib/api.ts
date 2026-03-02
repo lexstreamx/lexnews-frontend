@@ -91,6 +91,18 @@ export async function markUnread(id: number) {
   return res.json();
 }
 
+export async function markImportant(id: number) {
+  const res = await fetch(`${API_BASE}/articles/${id}/important`, authFetchOpts({ method: 'POST' }));
+  if (!res.ok) throw new Error('Failed to mark article as important');
+  return res.json();
+}
+
+export async function unmarkImportant(id: number) {
+  const res = await fetch(`${API_BASE}/articles/${id}/important`, authFetchOpts({ method: 'DELETE' }));
+  if (!res.ok) throw new Error('Failed to unmark article as important');
+  return res.json();
+}
+
 export async function fetchJurisdictions(): Promise<{ jurisdictions: string[] }> {
   const res = await fetch(`${API_BASE}/articles/jurisdictions`, authFetchOpts());
   if (!res.ok) throw new Error('Failed to fetch jurisdictions');

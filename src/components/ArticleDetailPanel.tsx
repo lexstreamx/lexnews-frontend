@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { Article } from '@/types';
-import { saveArticle, unsaveArticle } from '@/lib/api';
+import { saveArticle, unsaveArticle, markImportant, unmarkImportant } from '@/lib/api';
 import {
   timeAgo,
   BookmarkIcon,
+  ImportantIcon,
   ImagePlaceholder,
   FEED_TYPE_LABELS,
   FEED_TYPE_COLORS,
@@ -21,6 +22,9 @@ interface ArticleDetailPanelProps {
 export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPanelProps) {
   const [saved, setSaved] = useState(article?.is_saved ?? false);
   const [saving, setSaving] = useState(false);
+  const [important, setImportant] = useState(article?.is_important ?? false);
+  const [importantCount, setImportantCount] = useState(article?.important_count ?? 0);
+  const [toggling, setToggling] = useState(false);
   const [imgError, setImgError] = useState(false);
 
   // Reset state when article changes
@@ -28,6 +32,8 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
   if (article && article.id !== prevId) {
     setPrevId(article.id);
     setSaved(article.is_saved);
+    setImportant(article.is_important);
+    setImportantCount(article.important_count);
     setImgError(false);
   }
 
@@ -54,6 +60,25 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
     }
   }
 
+  async function toggleImportant() {
+    if (!article) return;
+    setToggling(true);
+    const wasImportant = important;
+    setImportant(!wasImportant);
+    setImportantCount(c => wasImportant ? Math.max(0, c - 1) : c + 1);
+    try {
+      const res = wasImportant
+        ? await unmarkImportant(article.id)
+        : await markImportant(article.id);
+      setImportantCount(res.important_count);
+    } catch {
+      setImportant(wasImportant);
+      setImportantCount(c => wasImportant ? c + 1 : Math.max(0, c - 1));
+    } finally {
+      setToggling(false);
+    }
+  }
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -70,6 +95,17 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
             title={saved ? 'Remove from saved' : 'Save for later'}
           >
             <BookmarkIcon saved={saved} />
+          </button>
+          <button
+            onClick={toggleImportant}
+            disabled={toggling}
+            className={`p-2 rounded-lg transition-colors flex items-center gap-1 ${important ? 'bg-brand-accent/15 text-brand-accent' : 'hover:bg-brand-bg-hover text-brand-muted'}`}
+            title={important ? 'Remove important vote' : 'Mark as important'}
+          >
+            <ImportantIcon active={important} />
+            {importantCount > 0 && (
+              <span className="text-xs font-medium">{importantCount}</span>
+            )}
           </button>
           <a
             href={article.link}
@@ -130,6 +166,14 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
         <h2 className="font-heading text-lg font-bold text-brand-body leading-snug">
           {article.feed_type === 'judgment' ? getJudgmentDisplayTitle(article) : article.title}
         </h2>
+
+        {/* Social proof */}
+        {importantCount > 0 && (
+          <p className="text-xs text-brand-accent font-medium flex items-center gap-1">
+            <ImportantIcon active />
+            {importantCount} {importantCount === 1 ? 'person' : 'people'} found this important
+          </p>
+        )}
 
         {/* Source */}
         {article.source_name && (
