@@ -216,6 +216,13 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
                 ) : null;
               })()}
             </div>
+            {/* AI Summary for EU legislation */}
+            {article.content && !article.content.startsWith('<') && (
+              <div className="p-3 bg-brand-bg rounded-lg border border-brand-border text-sm text-brand-body leading-relaxed whitespace-pre-line">
+                <p className="text-xs font-semibold text-brand-accent mb-1">AI Summary</p>
+                {article.content}
+              </div>
+            )}
           </div>
         )}
 
