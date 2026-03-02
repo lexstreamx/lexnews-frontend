@@ -177,7 +177,7 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
                 </div>
               )}
               {(() => {
-                const celexMatch = article.description?.match(/CELEX:\s*(\w+)/);
+                const celexMatch = article.description?.match(/CELEX:\s*([\w()]+)/);
                 return celexMatch ? (
                   <div className="col-span-2">
                     <span className="text-brand-muted">CELEX:</span>
@@ -187,7 +187,7 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
               })()}
               {(() => {
                 // Extract creator: everything after " — " in CELEX descriptions
-                const creatorMatch = article.description?.match(/CELEX:\s*\w+\s*—\s*(.+)/);
+                const creatorMatch = article.description?.match(/CELEX:\s*[\w()]+\s*—\s*(.+)/);
                 return creatorMatch ? (
                   <div className="col-span-2">
                     <span className="text-brand-muted">Author:</span>
