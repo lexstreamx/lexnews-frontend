@@ -298,6 +298,11 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
                 {article.jurisdiction}
               </span>
             )}
+            {article.feed_type === 'legislation' && article.source_name && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-black/40 text-white backdrop-blur-sm">
+                {article.source_name}
+              </span>
+            )}
           </div>
 
           {/* Read/Unread label — bottom left */}
@@ -420,6 +425,11 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
           {article.jurisdiction && (
             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-bg text-brand-muted border border-brand-border">
               {article.jurisdiction}
+            </span>
+          )}
+          {article.feed_type === 'legislation' && article.source_name && (
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-brand-accent/10 text-brand-accent border border-brand-accent/20">
+              {article.source_name}
             </span>
           )}
           <span className="text-xs text-brand-muted">
