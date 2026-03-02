@@ -152,10 +152,70 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
           </div>
         )}
 
-        {/* Description */}
-        {article.description && (
+        {/* Description — hide for legislation if description is only metadata (CELEX + creator) */}
+        {article.description && !(article.feed_type === 'legislation' && article.description.startsWith('CELEX:')) && (
           <div className="text-sm text-brand-body leading-relaxed line-clamp-[10]">
             {article.description}
+          </div>
+        )}
+
+        {/* Legislation metadata */}
+        {article.feed_type === 'legislation' && (
+          <div className="space-y-3 pt-2 border-t border-brand-border">
+            <h4 className="text-xs font-semibold text-brand-muted uppercase tracking-wide">Legislation Details</h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {article.source_name && (
+                <div>
+                  <span className="text-brand-muted">Source:</span>
+                  <p className="font-medium text-brand-body">{article.source_name}</p>
+                </div>
+              )}
+              {article.jurisdiction && (
+                <div>
+                  <span className="text-brand-muted">Jurisdiction:</span>
+                  <p className="font-medium text-brand-body">{article.jurisdiction}</p>
+                </div>
+              )}
+              {(() => {
+                const celexMatch = article.description?.match(/CELEX:\s*(\w+)/);
+                return celexMatch ? (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">CELEX:</span>
+                    <p className="font-mono text-[11px] text-brand-body">{celexMatch[1]}</p>
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                // Extract creator: everything after " — " in CELEX descriptions
+                const creatorMatch = article.description?.match(/CELEX:\s*\w+\s*—\s*(.+)/);
+                return creatorMatch ? (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">Author:</span>
+                    <p className="font-medium text-brand-body">{creatorMatch[1]}</p>
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                // BGBl metadata: Initiant field
+                const initiantMatch = article.description?.match(/Initiant:\s*([^—]+)/);
+                return initiantMatch ? (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">Initiant:</span>
+                    <p className="font-medium text-brand-body">{initiantMatch[1].trim()}</p>
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                // BGBl metadata: Sachgebiet field
+                const sachgebietMatch = article.description?.match(/Sachgebiet:\s*([^—]+)/);
+                return sachgebietMatch ? (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">Subject Area:</span>
+                    <p className="font-medium text-brand-body">{sachgebietMatch[1].trim()}</p>
+                  </div>
+                ) : null;
+              })()}
+            </div>
           </div>
         )}
 
