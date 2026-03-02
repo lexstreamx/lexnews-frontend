@@ -39,20 +39,30 @@ export default function Home() {
   const initialCategoriesSet = useRef(false);
   const initialJurisdictionsSet = useRef(false);
 
-  // Pre-select user's categories and jurisdiction from their LearnWorlds tags, then mark ready
+  // Pre-select user's categories from their LearnWorlds tags
   useEffect(() => {
-    if (user) {
-      if (user.category_slugs.length > 0 && !initialCategoriesSet.current) {
-        setSelectedCategories(user.category_slugs);
-        initialCategoriesSet.current = true;
-      }
-      if (user.jurisdiction && !initialJurisdictionsSet.current) {
-        setSelectedJurisdictions([user.jurisdiction, 'EU', 'International']);
-        initialJurisdictionsSet.current = true;
-      }
-      setFiltersReady(true);
+    if (user && user.category_slugs.length > 0 && !initialCategoriesSet.current) {
+      setSelectedCategories(user.category_slugs);
+      initialCategoriesSet.current = true;
     }
   }, [user]);
+
+  // Pre-select jurisdictions once both user and available jurisdictions are loaded
+  useEffect(() => {
+    if (!user || initialJurisdictionsSet.current) {
+      if (user) setFiltersReady(true);
+      return;
+    }
+    if (jurisdictions.length === 0) return; // Wait for jurisdictions to load
+
+    if (user.jurisdiction && jurisdictions.includes(user.jurisdiction)) {
+      setSelectedJurisdictions([user.jurisdiction, 'EU', 'International'].filter(j => jurisdictions.includes(j)));
+    } else {
+      setSelectedJurisdictions(['EU', 'International', 'US'].filter(j => jurisdictions.includes(j)));
+    }
+    initialJurisdictionsSet.current = true;
+    setFiltersReady(true);
+  }, [user, jurisdictions]);
 
   // Load view mode and sidebar state from localStorage
   useEffect(() => {
@@ -109,7 +119,8 @@ export default function Home() {
       setCategories(catData.categories);
       setJurisdictions(jurData.jurisdictions);
     } catch {
-      // Filters will just be empty
+      // Filters failed to load — still mark ready so articles can load
+      setFiltersReady(true);
     }
   }, []);
 
