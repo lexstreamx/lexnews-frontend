@@ -2,7 +2,7 @@
 
 import { Article, ViewMode } from '@/types';
 import { saveArticle, unsaveArticle, markRead, markUnread, markImportant, unmarkImportant } from '@/lib/api';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export const FEED_TYPE_LABELS: Record<string, string> = {
   news: 'News',
@@ -258,6 +258,11 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
   const [importantCount, setImportantCount] = useState(article.important_count || 0);
   const [expanded, setExpanded] = useState(false);
   const [imgError, setImgError] = useState(false);
+
+  // Sync local state from parent prop changes (e.g. when detail panel toggles)
+  useEffect(() => { setImportant(article.is_important); }, [article.is_important]);
+  useEffect(() => { setImportantCount(article.important_count || 0); }, [article.important_count]);
+  useEffect(() => { setSaved(article.is_saved); }, [article.is_saved]);
 
   const jm = article.judgment;
   const showPlaceholder = !article.image_url || imgError;

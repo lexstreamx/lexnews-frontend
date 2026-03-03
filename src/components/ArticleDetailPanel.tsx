@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Article } from '@/types';
 import { saveArticle, unsaveArticle, markImportant, unmarkImportant } from '@/lib/api';
 import {
@@ -38,6 +38,11 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
     setImportantCount(article.important_count);
     setImgError(false);
   }
+
+  // Sync local state from parent prop changes (e.g. when card toggles)
+  useEffect(() => { if (article) setSaved(article.is_saved); }, [article?.is_saved]);
+  useEffect(() => { if (article) setImportant(article.is_important); }, [article?.is_important]);
+  useEffect(() => { if (article) setImportantCount(article.important_count); }, [article?.important_count]);
 
   if (!article) return null;
 
