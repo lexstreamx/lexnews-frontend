@@ -73,7 +73,12 @@ export default function Home() {
       setViewMode(stored);
     }
     const sb = localStorage.getItem('lexnews-sidebar');
-    if (sb === 'closed') setSidebarOpen(false);
+    if (sb === 'closed') {
+      setSidebarOpen(false);
+    } else if (sb === null && window.innerWidth < 1024) {
+      // Default to closed on mobile so users see cards immediately
+      setSidebarOpen(false);
+    }
   }, []);
 
   function handleSidebarToggle() {

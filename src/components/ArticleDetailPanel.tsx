@@ -40,9 +40,12 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
   }
 
   // Sync local state from parent prop changes (e.g. when card toggles)
-  useEffect(() => { if (article) setSaved(article.is_saved); }, [article?.is_saved]);
-  useEffect(() => { if (article) setImportant(article.is_important); }, [article?.is_important]);
-  useEffect(() => { if (article) setImportantCount(article.important_count); }, [article?.important_count]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (article) setSaved(article.is_saved); }, [article?.is_saved, article]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (article) setImportant(article.is_important); }, [article?.is_important, article]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (article) setImportantCount(article.important_count); }, [article?.important_count, article]);
 
   if (!article) return null;
 

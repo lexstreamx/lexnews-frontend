@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { DigestPreferences, DigestLog, Category } from '@/types';
+import { DigestLog, Category } from '@/types';
 import {
   fetchDigestPreferences,
   updateDigestPreferences,
