@@ -17,9 +17,11 @@ import {
 interface ArticleDetailPanelProps {
   article: Article | null;
   onClose: () => void;
+  onImportantChange?: (articleId: number, isImportant: boolean, importantCount: number) => void;
+  onSaveChange?: (articleId: number, isSaved: boolean) => void;
 }
 
-export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPanelProps) {
+export default function ArticleDetailPanel({ article, onClose, onImportantChange, onSaveChange }: ArticleDetailPanelProps) {
   const [saved, setSaved] = useState(article?.is_saved ?? false);
   const [saving, setSaving] = useState(false);
   const [important, setImportant] = useState(article?.is_important ?? false);
@@ -49,9 +51,11 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
       if (saved) {
         await unsaveArticle(article.id);
         setSaved(false);
+        onSaveChange?.(article.id, false);
       } else {
         await saveArticle(article.id);
         setSaved(true);
+        onSaveChange?.(article.id, true);
       }
     } catch {
       // revert on error
@@ -71,6 +75,7 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
         ? await unmarkImportant(article.id)
         : await markImportant(article.id);
       setImportantCount(res.important_count);
+      onImportantChange?.(article.id, !wasImportant, res.important_count);
     } catch {
       setImportant(wasImportant);
       setImportantCount(c => wasImportant ? c + 1 : Math.max(0, c - 1));

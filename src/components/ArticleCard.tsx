@@ -245,10 +245,12 @@ interface ArticleCardProps {
   onSelect?: (article: Article) => void;
   isSelected?: boolean;
   onReadChange?: (article: Article, isRead: boolean) => void;
+  onImportantChange?: (articleId: number, isImportant: boolean, importantCount: number) => void;
+  onSaveChange?: (articleId: number, isSaved: boolean) => void;
   onCategoryClick?: (slug: string) => void;
 }
 
-export default function ArticleCard({ article, view, onSelect, isSelected, onReadChange, onCategoryClick }: ArticleCardProps) {
+export default function ArticleCard({ article, view, onSelect, isSelected, onReadChange, onImportantChange, onSaveChange, onCategoryClick }: ArticleCardProps) {
   const [saved, setSaved] = useState(article.is_saved);
   const [saving, setSaving] = useState(false);
   const [read, setRead] = useState(article.is_read);
@@ -269,9 +271,11 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
       if (saved) {
         await unsaveArticle(article.id);
         setSaved(false);
+        onSaveChange?.(article.id, false);
       } else {
         await saveArticle(article.id);
         setSaved(true);
+        onSaveChange?.(article.id, true);
       }
     } catch {
       // revert on error
@@ -305,9 +309,11 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
       if (wasImportant) {
         const res = await unmarkImportant(article.id);
         setImportantCount(res.important_count);
+        onImportantChange?.(article.id, false, res.important_count);
       } else {
         const res = await markImportant(article.id);
         setImportantCount(res.important_count);
+        onImportantChange?.(article.id, true, res.important_count);
       }
     } catch {
       setImportant(wasImportant);

@@ -167,6 +167,16 @@ export default function Home() {
     setArticles(prev => prev.map(a => a.id === article.id ? { ...a, is_read: isRead } : a));
   }
 
+  function handleImportantChange(articleId: number, isImportant: boolean, importantCount: number) {
+    setArticles(prev => prev.map(a => a.id === articleId ? { ...a, is_important: isImportant, important_count: importantCount } : a));
+    setSelectedArticle(prev => prev && prev.id === articleId ? { ...prev, is_important: isImportant, important_count: importantCount } : prev);
+  }
+
+  function handleSaveChange(articleId: number, isSaved: boolean) {
+    setArticles(prev => prev.map(a => a.id === articleId ? { ...a, is_saved: isSaved } : a));
+    setSelectedArticle(prev => prev && prev.id === articleId ? { ...prev, is_saved: isSaved } : prev);
+  }
+
   function handleCategoryClick(slug: string) {
     setSelectedCategories(prev =>
       prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
@@ -597,13 +607,13 @@ export default function Home() {
               viewMode === 'card' ? (
                 <div className={`grid grid-cols-1 md:grid-cols-2 ${selectedArticle ? '' : 'xl:grid-cols-3'} gap-4`}>
                   {articles.map((a) => (
-                    <ArticleCard key={a.id} article={a} view="card" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} onCategoryClick={handleCategoryClick} />
+                    <ArticleCard key={a.id} article={a} view="card" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} onImportantChange={handleImportantChange} onSaveChange={handleSaveChange} onCategoryClick={handleCategoryClick} />
                   ))}
                 </div>
               ) : (
                 <div className="space-y-3">
                   {articles.map((a) => (
-                    <ArticleCard key={a.id} article={a} view="list" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} onCategoryClick={handleCategoryClick} />
+                    <ArticleCard key={a.id} article={a} view="list" onSelect={handleSelectArticle} isSelected={selectedArticle?.id === a.id} onReadChange={handleReadChange} onImportantChange={handleImportantChange} onSaveChange={handleSaveChange} onCategoryClick={handleCategoryClick} />
                   ))}
                 </div>
               )
@@ -638,6 +648,8 @@ export default function Home() {
             <ArticleDetailPanel
               article={selectedArticle}
               onClose={() => setSelectedArticle(null)}
+              onImportantChange={handleImportantChange}
+              onSaveChange={handleSaveChange}
             />
           )}
         </div>
