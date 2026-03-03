@@ -12,6 +12,7 @@ import {
   FEED_TYPE_COLORS,
   getJudgmentDisplayTitle,
   getJudgmentDocLabel,
+  getCompetitionLabel,
 } from './ArticleCard';
 
 interface ArticleDetailPanelProps {
@@ -163,7 +164,7 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
         {/* Feed type + jurisdiction + time */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${FEED_TYPE_COLORS[article.feed_type] || 'bg-gray-100 text-gray-700'}`}>
-            {(article.feed_type === 'judgment' ? getJudgmentDocLabel(article) : null) || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
+            {(article.feed_type === 'judgment' ? getJudgmentDocLabel(article) : article.feed_type === 'competition' ? getCompetitionLabel(article) : null) || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
           </span>
           {article.jurisdiction && (
             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-bg text-brand-muted border border-brand-border">
@@ -450,6 +451,76 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
             )}
           </div>
         )}
+
+        {/* Competition metadata */}
+        {article.feed_type === 'competition' && article.competition && (() => {
+          const cm = article.competition;
+          return (
+            <div className="space-y-3 pt-2 border-t border-brand-border">
+              <h4 className="text-xs font-semibold text-brand-muted uppercase tracking-wide">Competition Details</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                {cm.case_number && (
+                  <div>
+                    <span className="text-brand-muted">Case Number:</span>
+                    <p className="font-medium text-brand-body">{cm.case_number}</p>
+                  </div>
+                )}
+                {cm.case_instrument && (
+                  <div>
+                    <span className="text-brand-muted">Instrument:</span>
+                    <p className="font-medium text-brand-body">
+                      <span className="inline-block px-1.5 py-0.5 rounded bg-red-100 text-red-800 text-[11px] font-semibold">
+                        {getCompetitionLabel(article)}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {cm.companies && (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">Parties:</span>
+                    <p className="font-medium text-brand-body">{cm.companies}</p>
+                  </div>
+                )}
+                {cm.legal_basis && (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">Legal Basis:</span>
+                    <p className="font-medium text-brand-body">{cm.legal_basis}</p>
+                  </div>
+                )}
+                {cm.sectors && (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">Sectors:</span>
+                    <p className="font-medium text-brand-body">{cm.sectors}</p>
+                  </div>
+                )}
+                {cm.case_type && (
+                  <div>
+                    <span className="text-brand-muted">Case Type:</span>
+                    <p className="font-medium text-brand-body">{cm.case_type}</p>
+                  </div>
+                )}
+                {cm.last_decision_date && (
+                  <div>
+                    <span className="text-brand-muted">Last Decision:</span>
+                    <p className="font-medium text-brand-body">{new Date(cm.last_decision_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  </div>
+                )}
+                {cm.notification_date && (
+                  <div>
+                    <span className="text-brand-muted">Notified:</span>
+                    <p className="font-medium text-brand-body">{new Date(cm.notification_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  </div>
+                )}
+                {cm.member_state && (
+                  <div>
+                    <span className="text-brand-muted">Member State:</span>
+                    <p className="font-medium text-brand-body">{cm.member_state}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Read full article button */}
         <a

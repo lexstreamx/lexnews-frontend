@@ -8,6 +8,7 @@ const FEED_TYPES: { value: FeedType; label: string }[] = [
   { value: 'news', label: 'News' },
   { value: 'blogpost', label: 'Blogposts' },
   { value: 'judgment', label: 'Case Law' },
+  { value: 'competition', label: 'Competition' },
   { value: 'regulatory', label: 'Regulatory' },
   { value: 'legislation', label: 'Legislation' },
   { value: 'procurement', label: 'Procurement' },
@@ -33,6 +34,12 @@ const DOC_TYPE_OPTIONS = [
   { value: 'Order', label: 'Order' },
 ];
 
+const INSTRUMENT_OPTIONS = [
+  { value: 'antitrust', label: 'Antitrust' },
+  { value: 'dma', label: 'DMA' },
+  { value: 'fsr', label: 'FSR' },
+];
+
 interface FilterBarProps {
   categories: Category[];
   jurisdictions: string[];
@@ -41,11 +48,13 @@ interface FilterBarProps {
   selectedJurisdictions: string[];
   selectedCourts: string[];
   selectedDocTypes: string[];
+  selectedInstruments: string[];
   onFeedTypeChange: (type: FeedType) => void;
   onCategoriesChange: (slugs: string[]) => void;
   onJurisdictionsChange: (jurisdictions: string[]) => void;
   onCourtsChange: (courts: string[]) => void;
   onDocTypesChange: (docTypes: string[]) => void;
+  onInstrumentsChange: (instruments: string[]) => void;
   dateFilter: DateFilter;
   onDateFilterChange: (filter: DateFilter) => void;
   dark?: boolean;
@@ -59,11 +68,13 @@ export default function FilterBar({
   selectedJurisdictions,
   selectedCourts,
   selectedDocTypes,
+  selectedInstruments,
   onFeedTypeChange,
   onCategoriesChange,
   onJurisdictionsChange,
   onCourtsChange,
   onDocTypesChange,
+  onInstrumentsChange,
   dateFilter,
   onDateFilterChange,
   dark = false,
@@ -175,6 +186,19 @@ export default function FilterBar({
             options={DOC_TYPE_OPTIONS}
             selected={selectedDocTypes}
             onChange={onDocTypesChange}
+            dark={dark}
+          />
+        </div>
+      )}
+
+      {/* Competition-specific filters */}
+      {selectedFeedType === 'competition' && (
+        <div className="space-y-2">
+          <MultiSelectDropdown
+            label="Instrument"
+            options={INSTRUMENT_OPTIONS}
+            selected={selectedInstruments}
+            onChange={onInstrumentsChange}
             dark={dark}
           />
         </div>

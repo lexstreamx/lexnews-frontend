@@ -29,6 +29,7 @@ export default function Home() {
   const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
   const [selectedCourts, setSelectedCourts] = useState<string[]>([]);
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([]);
+  const [selectedInstruments, setSelectedInstruments] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [dateFilter, setDateFilter] = useState<DateFilter>({ preset: 'all' });
@@ -99,6 +100,7 @@ export default function Home() {
         jurisdictions: selectedJurisdictions.length > 0 ? selectedJurisdictions : undefined,
         courts: selectedCourts.length > 0 ? selectedCourts : undefined,
         doc_types: selectedDocTypes.length > 0 ? selectedDocTypes : undefined,
+        competition_instruments: selectedInstruments.length > 0 ? selectedInstruments : undefined,
         search: searchQuery || undefined,
         saved_only: showSaved || undefined,
         date_range: dateFilter.preset !== 'all' && dateFilter.preset !== 'custom'
@@ -118,7 +120,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved, dateFilter]);
+  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, searchQuery, showSaved, dateFilter]);
 
   const loadFilters = useCallback(async () => {
     try {
@@ -145,14 +147,17 @@ export default function Home() {
   useEffect(() => {
     setPage(1);
     setSelectedArticle(null);
-  }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, searchQuery, showSaved, dateFilter]);
+  }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, searchQuery, showSaved, dateFilter]);
 
   function handleFeedTypeChange(type: FeedType) {
     setFeedType(type);
-    // Clear caselaw-specific filters when switching away from Caselaw
+    // Clear feed-specific sub-filters when switching feed types
     if (type !== 'judgment') {
       setSelectedCourts([]);
       setSelectedDocTypes([]);
+    }
+    if (type !== 'competition') {
+      setSelectedInstruments([]);
     }
   }
 
@@ -282,11 +287,13 @@ export default function Home() {
                   selectedJurisdictions={selectedJurisdictions}
                   selectedCourts={selectedCourts}
                   selectedDocTypes={selectedDocTypes}
+                  selectedInstruments={selectedInstruments}
                   onFeedTypeChange={handleFeedTypeChange}
                   onCategoriesChange={setSelectedCategories}
                   onJurisdictionsChange={setSelectedJurisdictions}
                   onCourtsChange={setSelectedCourts}
                   onDocTypesChange={setSelectedDocTypes}
+                  onInstrumentsChange={setSelectedInstruments}
                   dateFilter={dateFilter}
                   onDateFilterChange={setDateFilter}
                   dark
@@ -367,6 +374,7 @@ export default function Home() {
                     { value: 'regulatory' as FeedType, label: 'Regulatory', path: 'M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z' },
                     { value: 'legislation' as FeedType, label: 'Legislation', path: 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z' },
                     { value: 'procurement' as FeedType, label: 'Procurement', path: 'M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3H21m-3.75 3H21' },
+                    { value: 'competition' as FeedType, label: 'Competition', path: 'M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z' },
                   ]).map((ft) => (
                     <div key={ft.value} className="relative group">
                       <button
@@ -481,7 +489,7 @@ export default function Home() {
             {/* View toggle + Active filters summary */}
             <div className="flex items-center justify-between pb-3">
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
-            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all') && (
+            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || selectedInstruments.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all') && (
               <>
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
@@ -499,7 +507,7 @@ export default function Home() {
                     </svg>
                   </button>
                 )}
-                {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{{ news: 'News', blogpost: 'Blogposts', judgment: 'Case Law', regulatory: 'Regulatory', legislation: 'Legislation', procurement: 'Procurement' }[feedType] || feedType}</span>}
+                {feedType !== 'all' && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{{ news: 'News', blogpost: 'Blogposts', judgment: 'Case Law', competition: 'Competition', regulatory: 'Regulatory', legislation: 'Legislation', procurement: 'Procurement' }[feedType] || feedType}</span>}
                 {selectedCategories.map(slug => {
                   const cat = categories.find(c => c.slug === slug);
                   return (
@@ -518,6 +526,7 @@ export default function Home() {
                 {selectedJurisdictions.length > 0 && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{selectedJurisdictions.join(', ')}</span>}
                 {selectedCourts.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedCourts.join(', ')}</span>}
                 {selectedDocTypes.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedDocTypes.map(d => d === 'Opinion of Advocate General' ? 'AG Opinion' : d).join(', ')}</span>}
+                {selectedInstruments.length > 0 && <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-medium">{selectedInstruments.map(i => i === 'antitrust' ? 'Antitrust' : i === 'dma' ? 'DMA' : i === 'fsr' ? 'FSR' : i).join(', ')}</span>}
                 {searchQuery && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">&ldquo;{searchQuery}&rdquo;</span>}
                 <button
                   onClick={() => {
@@ -526,6 +535,7 @@ export default function Home() {
                     setSelectedJurisdictions([]);
                     setSelectedCourts([]);
                     setSelectedDocTypes([]);
+                    setSelectedInstruments([]);
                     setSearchQuery('');
                     setShowSaved(false);
                     setDateFilter({ preset: 'all' });

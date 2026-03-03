@@ -22,6 +22,18 @@ export interface JudgmentMetadata {
   press_release_url: string | null;
 }
 
+export interface CompetitionMetadata {
+  case_number: string | null;
+  case_instrument: string | null;
+  companies: string | null;
+  legal_basis: string | null;
+  sectors: string | null;
+  last_decision_date: string | null;
+  notification_date: string | null;
+  case_type: string | null;
+  member_state: string | null;
+}
+
 export interface Article {
   id: number;
   title: string;
@@ -32,7 +44,7 @@ export interface Article {
   source_name: string;
   source_url: string;
   published_at: string;
-  feed_type: 'news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation' | 'procurement';
+  feed_type: 'news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation' | 'procurement' | 'competition';
   jurisdiction: string | null;
   language: string;
   relevance_score: number;
@@ -42,6 +54,7 @@ export interface Article {
   is_important: boolean;
   important_count: number;
   judgment: JudgmentMetadata | null;
+  competition: CompetitionMetadata | null;
 }
 
 export interface Pagination {
@@ -60,7 +73,7 @@ export interface CategoriesResponse {
   categories: Category[];
 }
 
-export type FeedType = 'all' | 'news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation' | 'procurement';
+export type FeedType = 'all' | 'news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation' | 'procurement' | 'competition';
 
 export type ViewMode = 'card' | 'list';
 
@@ -78,7 +91,7 @@ export interface DigestPreferences {
   category_slugs: string[];
   primary_category_slug: string | null;
   jurisdictions: string[];
-  feed_types: ('news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation' | 'procurement')[];
+  feed_types: ('news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation' | 'procurement' | 'competition')[];
 }
 
 export interface DigestLog {
