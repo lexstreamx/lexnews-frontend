@@ -270,6 +270,105 @@ export default function ArticleDetailPanel({ article, onClose }: ArticleDetailPa
           </div>
         )}
 
+        {/* Procurement metadata */}
+        {article.feed_type === 'procurement' && (
+          <div className="space-y-3 pt-2 border-t border-brand-border">
+            <h4 className="text-xs font-semibold text-brand-muted uppercase tracking-wide">Procurement Details</h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {(() => {
+                // Title is "modeloAnuncio | designacaoEntidade" — extract both
+                const parts = article.title.split(' | ');
+                const procedure = parts[0] || null;
+                const entity = parts.slice(1).join(' | ') || null;
+                return (
+                  <>
+                    {procedure && (
+                      <div>
+                        <span className="text-brand-muted">Procedure:</span>
+                        <p className="font-medium text-brand-body">{procedure}</p>
+                      </div>
+                    )}
+                    {entity && (
+                      <div className="col-span-2">
+                        <span className="text-brand-muted">Contracting Entity:</span>
+                        <p className="font-medium text-brand-body">{entity}</p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+              {(() => {
+                const m = article.content?.match(/Preço Base:\s*([^—]+)/);
+                return m ? (
+                  <div>
+                    <span className="text-brand-muted">Base Price:</span>
+                    <p className="font-semibold text-brand-body">{m[1].trim()}</p>
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                const m = article.content?.match(/Tipo de Contrato:\s*([^—]+)/);
+                return m ? (
+                  <div>
+                    <span className="text-brand-muted">Contract Type:</span>
+                    <p className="font-medium text-brand-body">{m[1].trim()}</p>
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                const m = article.content?.match(/CPV:\s*([^—]+)/);
+                return m ? (
+                  <div className="col-span-2">
+                    <span className="text-brand-muted">CPV:</span>
+                    <p className="font-medium text-brand-body">{m[1].trim()}</p>
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                const m = article.content?.match(/Tipo de Acto:\s*([^—]+)/);
+                return m ? (
+                  <div>
+                    <span className="text-brand-muted">Notice Type:</span>
+                    <p className="font-medium text-brand-body">{m[1].trim()}</p>
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                const m = article.content?.match(/Prazo Propostas:\s*([^—]+)/);
+                return m ? (
+                  <div>
+                    <span className="text-brand-muted">Deadline:</span>
+                    <p className="font-medium text-brand-body">{m[1].trim()}</p>
+                  </div>
+                ) : null;
+              })()}
+              {article.jurisdiction && (
+                <div>
+                  <span className="text-brand-muted">Jurisdiction:</span>
+                  <p className="font-medium text-brand-body">{article.jurisdiction}</p>
+                </div>
+              )}
+            </div>
+            {/* Link to tender documents */}
+            {article.content?.includes('Peças do Procedimento:') && (() => {
+              const m = article.content.match(/Peças do Procedimento:\s*(\S+)/);
+              return m ? (
+                <a
+                  href={m[1]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-brand-accent font-medium hover:underline"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                  </svg>
+                  View tender documents
+                </a>
+              ) : null;
+            })()}
+          </div>
+        )}
+
         {/* Judgment metadata */}
         {jm && (
           <div className="space-y-3 pt-2 border-t border-brand-border">

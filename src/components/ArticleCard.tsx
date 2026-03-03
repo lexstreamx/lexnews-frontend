@@ -10,6 +10,7 @@ export const FEED_TYPE_LABELS: Record<string, string> = {
   judgment: 'Case Law',
   regulatory: 'Regulatory',
   legislation: 'Legislation',
+  procurement: 'Procurement',
 };
 
 export const FEED_TYPE_COLORS: Record<string, string> = {
@@ -18,6 +19,7 @@ export const FEED_TYPE_COLORS: Record<string, string> = {
   judgment: 'bg-amber-100 text-amber-800',
   regulatory: 'bg-green-100 text-green-800',
   legislation: 'bg-brand-accent/15 text-brand-accent',
+  procurement: 'bg-purple-100 text-purple-800',
 };
 
 export const FEED_TYPE_GRADIENTS: Record<string, string> = {
@@ -26,6 +28,7 @@ export const FEED_TYPE_GRADIENTS: Record<string, string> = {
   judgment: 'from-amber-500/20 to-amber-600/10',
   regulatory: 'from-green-500/20 to-green-600/10',
   legislation: 'from-orange-500/20 to-orange-600/10',
+  procurement: 'from-purple-500/20 to-purple-600/10',
 };
 
 export function timeAgo(dateStr: string): string {
@@ -72,6 +75,12 @@ export function FeedTypeIcon({ feedType }: { feedType: string }) {
       return (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-10 h-10 text-brand-muted">
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+        </svg>
+      );
+    case 'procurement':
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-10 h-10 text-brand-muted">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3H21m-3.75 3H21" />
         </svg>
       );
     default:
@@ -327,7 +336,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
 
           {/* Overlay badges */}
           <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${article.feed_type === 'news' ? 'bg-brand-body text-white' : article.feed_type === 'blogpost' ? 'bg-brand-body text-white' : article.feed_type === 'judgment' ? 'bg-brand-chestnut text-white' : article.feed_type === 'legislation' ? 'bg-brand-accent text-white' : 'bg-brand-gold text-white'}`}>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md ${article.feed_type === 'news' ? 'bg-brand-body text-white' : article.feed_type === 'blogpost' ? 'bg-brand-body text-white' : article.feed_type === 'judgment' ? 'bg-brand-chestnut text-white' : article.feed_type === 'legislation' ? 'bg-brand-accent text-white' : article.feed_type === 'procurement' ? 'bg-purple-700 text-white' : 'bg-brand-gold text-white'}`}>
               {docLabel || FEED_TYPE_LABELS[article.feed_type] || article.feed_type}
             </span>
             {article.jurisdiction && (
