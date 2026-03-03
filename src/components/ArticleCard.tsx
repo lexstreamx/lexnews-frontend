@@ -356,7 +356,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
             <button
               onClick={toggleRead}
               className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm transition-colors cursor-pointer ${
-                read ? 'bg-brand-accent text-white' : 'bg-brand-accent/15 text-brand-body'
+                read ? 'bg-brand-accent text-white' : 'bg-[#A3B18A] text-white'
               }`}
             >
               {read ? 'Read' : 'Unread'}
@@ -504,7 +504,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
             <button
               onClick={toggleRead}
               className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors cursor-pointer ${
-                read ? 'bg-brand-accent text-white' : 'bg-brand-accent/15 text-brand-body'
+                read ? 'bg-brand-accent text-white' : 'bg-[#A3B18A] text-white'
               }`}
             >
               {read ? 'Read' : 'Unread'}
@@ -592,7 +592,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         <button
           onClick={toggleRead}
           className={`text-[10px] font-semibold px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
-            read ? 'bg-brand-accent text-white' : 'bg-brand-accent/15 text-brand-body'
+            read ? 'bg-brand-accent text-white' : 'bg-[#A3B18A] text-white'
           }`}
         >
           {read ? 'Read' : 'Unread'}
