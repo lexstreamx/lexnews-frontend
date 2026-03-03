@@ -142,3 +142,38 @@ export async function loginWithEmail(email: string, password: string) {
   if (data.token) setStoredToken(data.token);
   return data;
 }
+
+// Digest API functions
+import { DigestPreferences, DigestLog } from '@/types';
+
+export async function fetchDigestPreferences(): Promise<{ preferences: DigestPreferences }> {
+  const res = await fetch(`${API_BASE}/digest/preferences`, authFetchOpts());
+  if (!res.ok) throw new Error('Failed to fetch digest preferences');
+  return res.json();
+}
+
+export async function updateDigestPreferences(prefs: Partial<DigestPreferences>): Promise<{ preferences: DigestPreferences }> {
+  const res = await fetch(`${API_BASE}/digest/preferences`, authFetchOpts({
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(prefs),
+  }));
+  if (!res.ok) throw new Error('Failed to update digest preferences');
+  return res.json();
+}
+
+export async function unsubscribeDigest(token: string): Promise<{ success: boolean }> {
+  const res = await fetch(`${API_BASE}/digest/unsubscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  if (!res.ok) throw new Error('Failed to unsubscribe');
+  return res.json();
+}
+
+export async function fetchDigestHistory(): Promise<{ logs: DigestLog[] }> {
+  const res = await fetch(`${API_BASE}/digest/history`, authFetchOpts());
+  if (!res.ok) throw new Error('Failed to fetch digest history');
+  return res.json();
+}

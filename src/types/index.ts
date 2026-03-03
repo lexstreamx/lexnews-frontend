@@ -71,3 +71,20 @@ export interface DateFilter {
   from?: string;
   to?: string;
 }
+
+export interface DigestPreferences {
+  enabled: boolean;
+  frequency: 'daily' | 'weekly';
+  category_slugs: string[];
+  primary_category_slug: string | null;
+  jurisdictions: string[];
+  feed_types: ('news' | 'blogpost' | 'judgment' | 'regulatory' | 'legislation' | 'procurement')[];
+}
+
+export interface DigestLog {
+  id: number;
+  frequency: string;
+  article_count: number;
+  status: 'sent' | 'failed' | 'skipped';
+  sent_at: string;
+}
