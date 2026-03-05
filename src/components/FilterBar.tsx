@@ -40,6 +40,18 @@ const INSTRUMENT_OPTIONS = [
   { value: 'fsr', label: 'FSR' },
 ];
 
+const PT_COURT_OPTIONS = [
+  { value: 'Supremo Tribunal de Justiça', label: 'STJ' },
+  { value: 'Supremo Tribunal Administrativo', label: 'STA' },
+  { value: 'Tribunal da Relação de Lisboa', label: 'TRL' },
+  { value: 'Tribunal da Relação do Porto', label: 'TRP' },
+  { value: 'Tribunal da Relação de Coimbra', label: 'TRC' },
+  { value: 'Tribunal da Relação de Évora', label: 'TRE' },
+  { value: 'Tribunal da Relação de Guimarães', label: 'TRG' },
+  { value: 'Tribunal Central Administrativo Sul', label: 'TCA-S' },
+  { value: 'Tribunal Central Administrativo Norte', label: 'TCA-N' },
+];
+
 interface FilterBarProps {
   categories: Category[];
   jurisdictions: string[];
@@ -170,6 +182,18 @@ export default function FilterBar({
         searchable={jurisdictions.length > 8}
         dark={dark}
       />
+
+      {/* Portuguese court filter — shown when Portugal jurisdiction is selected */}
+      {selectedJurisdictions.includes('Portugal') && (
+        <MultiSelectDropdown
+          label="Tribunal"
+          options={PT_COURT_OPTIONS}
+          selected={selectedCourts}
+          onChange={onCourtsChange}
+          searchable
+          dark={dark}
+        />
+      )}
 
       {/* Caselaw-specific filters */}
       {selectedFeedType === 'judgment' && (

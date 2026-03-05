@@ -149,11 +149,34 @@ export default function Home() {
     setSelectedArticle(null);
   }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, searchQuery, showSaved, dateFilter]);
 
+  // Clear Portuguese court selections when Portugal is deselected from jurisdictions
+  const PT_COURT_NAMES = [
+    'Supremo Tribunal de Justiça', 'Supremo Tribunal Administrativo',
+    'Tribunal da Relação de Lisboa', 'Tribunal da Relação do Porto',
+    'Tribunal da Relação de Coimbra', 'Tribunal da Relação de Évora',
+    'Tribunal da Relação de Guimarães', 'Tribunal Central Administrativo Sul',
+    'Tribunal Central Administrativo Norte',
+  ];
+  useEffect(() => {
+    if (!selectedJurisdictions.includes('Portugal') && selectedCourts.length > 0) {
+      const remaining = selectedCourts.filter(c => !PT_COURT_NAMES.includes(c));
+      if (remaining.length !== selectedCourts.length) {
+        setSelectedCourts(remaining);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedJurisdictions]);
+
   function handleFeedTypeChange(type: FeedType) {
     setFeedType(type);
     // Clear feed-specific sub-filters when switching feed types
     if (type !== 'judgment') {
-      setSelectedCourts([]);
+      // Keep Portuguese court selections (jurisdiction-based, not feed-type-based)
+      if (selectedJurisdictions.includes('Portugal')) {
+        setSelectedCourts(prev => prev.filter(c => PT_COURT_NAMES.includes(c)));
+      } else {
+        setSelectedCourts([]);
+      }
       setSelectedDocTypes([]);
     }
     if (type !== 'competition') {
@@ -524,7 +547,20 @@ export default function Home() {
                   );
                 })}
                 {selectedJurisdictions.length > 0 && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">{selectedJurisdictions.join(', ')}</span>}
-                {selectedCourts.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedCourts.join(', ')}</span>}
+                {selectedCourts.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedCourts.map(c => {
+                  const ptMap: Record<string, string> = {
+                    'Supremo Tribunal de Justiça': 'STJ',
+                    'Supremo Tribunal Administrativo': 'STA',
+                    'Tribunal da Relação de Lisboa': 'TRL',
+                    'Tribunal da Relação do Porto': 'TRP',
+                    'Tribunal da Relação de Coimbra': 'TRC',
+                    'Tribunal da Relação de Évora': 'TRE',
+                    'Tribunal da Relação de Guimarães': 'TRG',
+                    'Tribunal Central Administrativo Sul': 'TCA-S',
+                    'Tribunal Central Administrativo Norte': 'TCA-N',
+                  };
+                  return ptMap[c] || c;
+                }).join(', ')}</span>}
                 {selectedDocTypes.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedDocTypes.map(d => d === 'Opinion of Advocate General' ? 'AG Opinion' : d).join(', ')}</span>}
                 {selectedInstruments.length > 0 && <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-medium">{selectedInstruments.map(i => i === 'antitrust' ? 'Antitrust' : i === 'dma' ? 'DMA' : i === 'fsr' ? 'FSR' : i).join(', ')}</span>}
                 {searchQuery && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">&ldquo;{searchQuery}&rdquo;</span>}
