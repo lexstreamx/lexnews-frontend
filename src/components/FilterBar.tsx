@@ -183,23 +183,22 @@ export default function FilterBar({
         dark={dark}
       />
 
-      {/* Portuguese court filter — shown when Portugal jurisdiction is selected */}
-      {selectedJurisdictions.includes('Portugal') && (
-        <MultiSelectDropdown
-          label="Tribunal"
-          options={PT_COURT_OPTIONS}
-          selected={selectedCourts}
-          onChange={onCourtsChange}
-          searchable
-          dark={dark}
-        />
-      )}
-
       {/* Caselaw-specific filters */}
       {selectedFeedType === 'judgment' && (
         <div className="space-y-2">
+          {/* Portuguese court filter — only when jurisdiction includes Portugal */}
+          {selectedJurisdictions.includes('Portugal') && (
+            <MultiSelectDropdown
+              label="Tribunal"
+              options={PT_COURT_OPTIONS}
+              selected={selectedCourts}
+              onChange={onCourtsChange}
+              searchable
+              dark={dark}
+            />
+          )}
           <MultiSelectDropdown
-            label="Court"
+            label="EU Court"
             options={COURT_OPTIONS}
             selected={selectedCourts}
             onChange={onCourtsChange}

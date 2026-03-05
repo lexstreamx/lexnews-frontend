@@ -171,12 +171,7 @@ export default function Home() {
     setFeedType(type);
     // Clear feed-specific sub-filters when switching feed types
     if (type !== 'judgment') {
-      // Keep Portuguese court selections (jurisdiction-based, not feed-type-based)
-      if (selectedJurisdictions.includes('Portugal')) {
-        setSelectedCourts(prev => prev.filter(c => PT_COURT_NAMES.includes(c)));
-      } else {
-        setSelectedCourts([]);
-      }
+      setSelectedCourts([]);
       setSelectedDocTypes([]);
     }
     if (type !== 'competition') {
