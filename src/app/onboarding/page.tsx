@@ -3,8 +3,44 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { fetchCategories, fetchJurisdictions, completeOnboarding } from '@/lib/api';
+import { fetchCategories, completeOnboarding } from '@/lib/api';
 import { Category } from '@/types';
+
+// Curated jurisdiction list for onboarding — EU/legal platform focus
+const ONBOARDING_JURISDICTIONS = [
+  'EU',
+  'Portugal',
+  'Austria',
+  'Belgium',
+  'Bulgaria',
+  'Croatia',
+  'Cyprus',
+  'Czech Republic',
+  'Denmark',
+  'Estonia',
+  'Finland',
+  'France',
+  'Germany',
+  'Greece',
+  'Hungary',
+  'Ireland',
+  'Italy',
+  'Latvia',
+  'Lithuania',
+  'Luxembourg',
+  'Malta',
+  'Netherlands',
+  'Poland',
+  'Romania',
+  'Slovakia',
+  'Slovenia',
+  'Spain',
+  'Sweden',
+  'Norway',
+  'Switzerland',
+  'UK',
+  'International',
+];
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -12,7 +48,6 @@ export default function OnboardingPage() {
 
   const [step, setStep] = useState<1 | 2>(1);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [jurisdictions, setJurisdictions] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedJurisdiction, setSelectedJurisdiction] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -33,12 +68,11 @@ export default function OnboardingPage() {
     }
   }, [user, authLoading, router]);
 
-  // Fetch categories and jurisdictions
+  // Fetch categories (jurisdictions are curated, no need to fetch)
   useEffect(() => {
-    Promise.all([fetchCategories(), fetchJurisdictions()])
-      .then(([catData, jurData]) => {
+    fetchCategories()
+      .then((catData) => {
         setCategories(catData.categories || []);
-        setJurisdictions(jurData.jurisdictions || []);
       })
       .catch(() => {
         setError('Failed to load data. Please refresh the page.');
@@ -182,7 +216,7 @@ export default function OnboardingPage() {
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-8">
-              {jurisdictions.map(j => (
+              {ONBOARDING_JURISDICTIONS.map(j => (
                 <button
                   key={j}
                   onClick={() => setSelectedJurisdiction(j)}

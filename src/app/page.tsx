@@ -12,6 +12,15 @@ import { useAuth } from '@/lib/auth-context';
 import { fetchArticles, fetchCategories, fetchJurisdictions, markRead, changePassword, updatePreferences } from '@/lib/api';
 import { Article, Category, FeedType, ViewMode, DateFilter } from '@/types';
 
+// Curated jurisdiction list for Account Settings (matches onboarding)
+const SETTINGS_JURISDICTIONS = [
+  'EU', 'Portugal', 'Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus',
+  'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany',
+  'Greece', 'Hungary', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg',
+  'Malta', 'Netherlands', 'Poland', 'Romania', 'Slovakia', 'Slovenia', 'Spain',
+  'Sweden', 'Norway', 'Switzerland', 'UK', 'International',
+];
+
 export default function Home() {
   const { user, loading: authLoading, logout, setUser } = useAuth();
   const router = useRouter();
@@ -759,7 +768,6 @@ function AccountSettingsModal({ user, onClose, onUserUpdate }: {
   const [pwMessage, setPwMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [jurisdictions, setJurisdictions] = useState<string[]>([]);
   const [selectedCats, setSelectedCats] = useState<string[]>(user.category_slugs || []);
   const [selectedJur, setSelectedJur] = useState<string>(user.jurisdiction || '');
   const [prefSaving, setPrefSaving] = useState(false);
@@ -767,10 +775,9 @@ function AccountSettingsModal({ user, onClose, onUserUpdate }: {
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchCategories(), fetchJurisdictions()])
-      .then(([catData, jurData]) => {
+    fetchCategories()
+      .then((catData) => {
         setCategories(catData.categories || []);
-        setJurisdictions(jurData.jurisdictions || []);
       })
       .catch(() => setPrefMessage({ type: 'error', text: 'Failed to load data.' }))
       .finally(() => setDataLoading(false));
@@ -917,7 +924,7 @@ function AccountSettingsModal({ user, onClose, onUserUpdate }: {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-1.5">
-                {jurisdictions.map(j => (
+                {SETTINGS_JURISDICTIONS.map(j => (
                   <button
                     key={j}
                     onClick={() => setSelectedJur(j)}
