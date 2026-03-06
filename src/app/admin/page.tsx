@@ -105,27 +105,28 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 }
 
 function BarChart({ data, labelKey, valueKey, labelMap }: {
-  data: Array<Record<string, any>>;
+  data: Array<Record<string, string | number>>;
   labelKey: string;
   valueKey: string;
   labelMap?: Record<string, string>;
 }) {
-  const max = Math.max(...data.map(d => d[valueKey]), 1);
+  const max = Math.max(...data.map(d => Number(d[valueKey])), 1);
   return (
     <div className="space-y-1.5">
       {data.map((item, i) => {
         const rawLabel = String(item[labelKey]);
         const displayLabel = labelMap?.[rawLabel] || rawLabel;
+        const val = Number(item[valueKey]);
         return (
           <div key={i} className="flex items-center gap-3">
             <span className="text-xs text-brand-muted w-28 truncate text-right shrink-0">{displayLabel}</span>
             <div className="flex-1 bg-brand-bg rounded-full h-5 overflow-hidden">
               <div
                 className="h-full bg-brand-accent rounded-full transition-all duration-300"
-                style={{ width: `${Math.max((item[valueKey] / max) * 100, 2)}%` }}
+                style={{ width: `${Math.max((val / max) * 100, 2)}%` }}
               />
             </div>
-            <span className="text-xs font-medium text-brand-body w-12 text-right shrink-0">{fmt(item[valueKey])}</span>
+            <span className="text-xs font-medium text-brand-body w-12 text-right shrink-0">{fmt(val)}</span>
           </div>
         );
       })}
@@ -172,7 +173,7 @@ function DataTable({ headers, rows }: { headers: string[]; rows: (string | numbe
 }
 
 function ArticleList({ articles, countKey, countLabel }: {
-  articles: Array<{ id: number; title: string; feed_type: string; source_name: string; [k: string]: any }>;
+  articles: Array<{ id: number; title: string; feed_type: string; source_name: string; [k: string]: string | number }>;
   countKey: string;
   countLabel: string;
 }) {
