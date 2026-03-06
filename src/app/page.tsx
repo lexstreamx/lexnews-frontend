@@ -7,6 +7,7 @@ import FilterBar from '@/components/FilterBar';
 import ArticleCard from '@/components/ArticleCard';
 import ArticleDetailPanel from '@/components/ArticleDetailPanel';
 import DigestSettings from '@/components/DigestSettings';
+import MultiSelectDropdown from '@/components/MultiSelectDropdown';
 import LoginScreen from '@/components/LoginScreen';
 import { useAuth } from '@/lib/auth-context';
 import { fetchArticles, fetchCategories, fetchJurisdictions, markRead, changePassword, updatePreferences } from '@/lib/api';
@@ -34,7 +35,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>('card');
 
   // Filters
-  const [feedType, setFeedType] = useState<FeedType>('all');
+  const [feedType, setFeedType] = useState<FeedType>('news');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [jurisdictions, setJurisdictions] = useState<string[]>([]);
   const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
@@ -955,57 +956,41 @@ function AccountSettingsModal({ user, onClose, onUserUpdate }: {
           )}
 
           {/* Default Areas of Law */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h3 className="font-heading text-sm font-bold text-brand-heading">Default Areas of Law</h3>
             {dataLoading ? (
               <div className="flex justify-center py-4">
                 <div className="w-5 h-5 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
               </div>
             ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {categories.map(cat => (
-                  <button
-                    key={cat.slug}
-                    onClick={() => setSelectedCats(prev => prev.includes(cat.slug) ? prev.filter(s => s !== cat.slug) : [...prev, cat.slug])}
-                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer border ${
-                      selectedCats.includes(cat.slug)
-                        ? 'bg-brand-accent text-white border-brand-accent'
-                        : 'bg-white text-brand-body border-brand-border hover:border-brand-accent/40'
-                    }`}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            )}
-            {selectedCats.length > 0 && (
-              <p className="text-brand-muted text-xs">{selectedCats.length} area{selectedCats.length !== 1 ? 's' : ''} selected</p>
+              <MultiSelectDropdown
+                label="Select areas"
+                options={categories.map(cat => ({ value: cat.slug, label: cat.name }))}
+                selected={selectedCats}
+                onChange={setSelectedCats}
+                searchable
+              />
             )}
           </div>
 
           {/* Default Jurisdiction */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h3 className="font-heading text-sm font-bold text-brand-heading">Default Jurisdiction</h3>
             {dataLoading ? (
               <div className="flex justify-center py-4">
                 <div className="w-5 h-5 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-1.5">
+              <select
+                value={selectedJur}
+                onChange={(e) => setSelectedJur(e.target.value)}
+                className="w-full px-3 py-2.5 text-sm border border-brand-border rounded-lg bg-white text-brand-body focus:outline-none focus:ring-1 focus:ring-brand-accent/30 focus:border-brand-accent/50 cursor-pointer"
+              >
+                <option value="">Select jurisdiction...</option>
                 {SETTINGS_JURISDICTIONS.map(j => (
-                  <button
-                    key={j}
-                    onClick={() => setSelectedJur(j)}
-                    className={`px-2.5 py-2 rounded-md text-xs font-medium transition-all cursor-pointer border text-left ${
-                      selectedJur === j
-                        ? 'bg-brand-accent text-white border-brand-accent'
-                        : 'bg-white text-brand-body border-brand-border hover:border-brand-accent/40'
-                    }`}
-                  >
-                    {j}
-                  </button>
+                  <option key={j} value={j}>{j}</option>
                 ))}
-              </div>
+              </select>
             )}
           </div>
 
