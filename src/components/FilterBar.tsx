@@ -36,6 +36,7 @@ const DOC_TYPE_OPTIONS = [
 
 const INSTRUMENT_OPTIONS = [
   { value: 'antitrust', label: 'Antitrust' },
+  { value: 'merger', label: 'Merger' },
   { value: 'dma', label: 'DMA' },
   { value: 'fsr', label: 'FSR' },
 ];
