@@ -305,3 +305,36 @@ export async function fetchAdminEngagement() {
   if (!res.ok) throw new Error('Failed to fetch admin engagement');
   return res.json();
 }
+
+// Custom Lenses API
+
+export interface CustomLens {
+  id: number;
+  name: string;
+  keywords: string;
+  created_at: string;
+  last_viewed_at: string | null;
+}
+
+export async function fetchLenses(): Promise<{ lenses: CustomLens[] }> {
+  const res = await fetch(`${API_BASE}/lenses`, authFetchOpts());
+  if (!res.ok) throw new Error('Failed to fetch lenses');
+  return res.json();
+}
+
+export async function createLens(name: string, keywords: string): Promise<{ lens: CustomLens }> {
+  const res = await fetch(`${API_BASE}/lenses`, authFetchOpts({
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, keywords }),
+  }));
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to create lens');
+  return data;
+}
+
+export async function deleteLens(id: number): Promise<{ deleted: boolean }> {
+  const res = await fetch(`${API_BASE}/lenses/${id}`, authFetchOpts({ method: 'DELETE' }));
+  if (!res.ok) throw new Error('Failed to delete lens');
+  return res.json();
+}

@@ -9,8 +9,9 @@ import ArticleDetailPanel from '@/components/ArticleDetailPanel';
 import DigestSettings from '@/components/DigestSettings';
 import MultiSelectDropdown from '@/components/MultiSelectDropdown';
 import LoginScreen from '@/components/LoginScreen';
+import LensBar from '@/components/LensBar';
 import { useAuth } from '@/lib/auth-context';
-import { fetchArticles, fetchCategories, fetchJurisdictions, markRead, changePassword, updatePreferences } from '@/lib/api';
+import { fetchArticles, fetchCategories, fetchJurisdictions, markRead, changePassword, updatePreferences, fetchLenses, createLens, deleteLens, CustomLens } from '@/lib/api';
 import { Article, Category, FeedType, ViewMode, DateFilter } from '@/types';
 
 // Curated jurisdiction list for Account Settings (matches onboarding)
@@ -53,6 +54,8 @@ export default function Home() {
   const [showDigestSettings, setShowDigestSettings] = useState(false);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [filtersReady, setFiltersReady] = useState(false);
+  const [lenses, setLenses] = useState<CustomLens[]>([]);
+  const [activeLensId, setActiveLensId] = useState<number | null>(null);
   const initialCategoriesSet = useRef(false);
   const initialJurisdictionsSet = useRef(false);
 
@@ -159,7 +162,10 @@ export default function Home() {
   const deepLinkHandled = useRef(false);
 
   useEffect(() => {
-    if (isLoggedIn) loadFilters();
+    if (isLoggedIn) {
+      loadFilters();
+      fetchLenses().then(data => setLenses(data.lenses)).catch(() => {});
+    }
   }, [isLoggedIn, loadFilters]);
 
   useEffect(() => {
@@ -253,6 +259,32 @@ export default function Home() {
 
   function handleSearch(query: string) {
     setSearchQuery(query);
+    setActiveLensId(null); // Manual search deactivates any active lens
+  }
+
+  // Custom Lens handlers
+  function handleActivateLens(lens: CustomLens) {
+    setActiveLensId(lens.id);
+    setSearchQuery(lens.keywords);
+  }
+
+  function handleDeactivateLens() {
+    setActiveLensId(null);
+    setSearchQuery('');
+  }
+
+  async function handleCreateLens(name: string, keywords: string) {
+    const data = await createLens(name, keywords);
+    setLenses(prev => [...prev, data.lens]);
+  }
+
+  async function handleDeleteLens(id: number) {
+    await deleteLens(id);
+    setLenses(prev => prev.filter(l => l.id !== id));
+    if (activeLensId === id) {
+      setActiveLensId(null);
+      setSearchQuery('');
+    }
   }
 
   function handleSelectArticle(article: Article) {
@@ -427,7 +459,7 @@ export default function Home() {
 
                 {/* Saved articles */}
                 <button
-                  onClick={() => setShowSaved(!showSaved)}
+                  onClick={() => { setShowSaved(!showSaved); setActiveLensId(null); }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                     showSaved
                       ? 'bg-brand-accent text-white'
@@ -576,7 +608,7 @@ export default function Home() {
                   {/* Saved */}
                   <div className="relative group">
                     <button
-                      onClick={() => setShowSaved(!showSaved)}
+                      onClick={() => { setShowSaved(!showSaved); setActiveLensId(null); }}
                       className={`p-2 rounded-lg transition-colors cursor-pointer ${
                         showSaved ? 'bg-brand-accent text-white' : 'text-[#8A9A7C] hover:text-white hover:bg-[#1E2712]'
                       }`}
@@ -659,6 +691,18 @@ export default function Home() {
               ))}
             </div>
 
+            {/* Custom Lenses */}
+            {isLoggedIn && (
+              <LensBar
+                lenses={lenses}
+                activeLensId={activeLensId}
+                onActivateLens={handleActivateLens}
+                onDeactivateLens={handleDeactivateLens}
+                onCreateLens={handleCreateLens}
+                onDeleteLens={handleDeleteLens}
+              />
+            )}
+
             {/* View toggle + Active filters summary */}
             <div className="flex items-center justify-between pb-3">
               {/* All pill on mobile, next to view switcher */}
@@ -673,9 +717,10 @@ export default function Home() {
                 All
               </button>
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
-            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || selectedInstruments.length > 0 || selectedLegalBases.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all') && (
+            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || selectedInstruments.length > 0 || selectedLegalBases.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all' || activeLensId) && (
               <>
                 <span>Showing:</span>
+                {activeLensId && (() => { const l = lenses.find(x => x.id === activeLensId); return l ? <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">#{l.name}</span> : null; })()}
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
                 {dateFilter.preset !== 'all' && (
                   <button
@@ -738,6 +783,7 @@ export default function Home() {
                     setSearchQuery('');
                     setShowSaved(false);
                     setDateFilter({ preset: 'all' });
+                    setActiveLensId(null);
                   }}
                   className="text-xs text-brand-accent hover:underline"
                 >
