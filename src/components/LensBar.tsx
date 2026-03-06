@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import type { CustomLens } from '@/lib/api';
 
 interface LensBarProps {
@@ -79,11 +79,39 @@ function LensChip({
   onToggle: () => void;
   onDelete: () => void;
 }) {
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLongPress = useRef(false);
+
+  const startPress = useCallback(() => {
+    didLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      didLongPress.current = true;
+      if (window.confirm(`Delete lens #${lens.name}?`)) {
+        onDelete();
+      }
+    }, 500);
+  }, [lens.name, onDelete]);
+
+  const endPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleClick = useCallback(() => {
+    if (didLongPress.current) return; // ignore tap after long-press
+    onToggle();
+  }, [onToggle]);
+
   return (
     <div className="group relative shrink-0">
       <button
-        onClick={onToggle}
-        className={`flex items-center gap-0.5 px-3 py-1.5 text-sm font-medium rounded-full transition-all whitespace-nowrap ${
+        onClick={handleClick}
+        onTouchStart={startPress}
+        onTouchEnd={endPress}
+        onTouchCancel={endPress}
+        className={`flex items-center gap-0.5 px-3 py-1.5 text-sm font-medium rounded-full transition-all whitespace-nowrap select-none ${
           isActive
             ? 'bg-brand-accent text-white shadow-sm'
             : 'bg-white border border-brand-border text-brand-body hover:bg-brand-bg'
@@ -93,7 +121,7 @@ function LensChip({
         {lens.name}
       </button>
 
-      {/* Delete button — shows on hover, confirms via native dialog */}
+      {/* Delete button — shows on hover (desktop only) */}
       <button
         onClick={(e) => {
           e.stopPropagation();
