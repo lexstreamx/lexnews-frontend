@@ -15,6 +15,7 @@ export default function ArticleCTA({ articleId }: { articleId: number }) {
     return (
       <a
         href={`/?article=${articleId}`}
+        onClick={(e) => { e.preventDefault(); window.location.href = `/?article=${articleId}`; }}
         className="inline-flex items-center gap-2 px-8 py-3 bg-brand-accent text-white font-semibold rounded-lg hover:bg-brand-accent/90 transition-colors shadow-md"
       >
         Open in LexLens
