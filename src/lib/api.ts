@@ -1,19 +1,27 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-// Token storage for browsers that block third-party cookies (Safari, etc.)
+// Token storage with fallback for in-app browsers (WhatsApp, Instagram)
+// that block or isolate localStorage. Falls back: localStorage → sessionStorage → memory.
 const TOKEN_KEY = 'lexstream_token';
+let memoryToken: string | null = null;
 
 export function getStoredToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
+  try { const t = localStorage.getItem(TOKEN_KEY); if (t) return t; } catch {}
+  try { const t = sessionStorage.getItem(TOKEN_KEY); if (t) return t; } catch {}
+  return memoryToken;
 }
 
 export function setStoredToken(token: string) {
-  localStorage.setItem(TOKEN_KEY, token);
+  try { localStorage.setItem(TOKEN_KEY, token); } catch {}
+  try { sessionStorage.setItem(TOKEN_KEY, token); } catch {}
+  memoryToken = token;
 }
 
 export function clearStoredToken() {
-  localStorage.removeItem(TOKEN_KEY);
+  try { localStorage.removeItem(TOKEN_KEY); } catch {}
+  try { sessionStorage.removeItem(TOKEN_KEY); } catch {}
+  memoryToken = null;
 }
 
 function authFetchOpts(extra: RequestInit = {}): RequestInit {

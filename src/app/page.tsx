@@ -79,25 +79,32 @@ export default function Home() {
     setFiltersReady(true);
   }, [user, jurisdictions]);
 
-  // Load view mode and sidebar state from localStorage
+  // Load view mode and sidebar state from localStorage (with try/catch for in-app browsers)
   useEffect(() => {
-    const stored = localStorage.getItem('lexnews-view-mode');
-    if (stored === 'card' || stored === 'list') {
-      setViewMode(stored);
-    }
-    const sb = localStorage.getItem('lexnews-sidebar');
-    if (sb === 'closed') {
-      setSidebarOpen(false);
-    } else if (sb === null && window.innerWidth < 1024) {
-      // Default to closed on mobile so users see cards immediately
-      setSidebarOpen(false);
+    try {
+      const stored = localStorage.getItem('lexnews-view-mode');
+      if (stored === 'card' || stored === 'list') setViewMode(stored);
+    } catch {}
+    try {
+      const sb = localStorage.getItem('lexnews-sidebar');
+      if (sb === 'closed') {
+        setSidebarOpen(false);
+      } else if (sb === null && window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
+    } catch {
+      // In-app browsers: default to closed
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) setSidebarOpen(false);
     }
   }, []);
+
+  // Mobile search bar toggle
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   function handleSidebarToggle() {
     const next = !sidebarOpen;
     setSidebarOpen(next);
-    localStorage.setItem('lexnews-sidebar', next ? 'open' : 'closed');
+    try { localStorage.setItem('lexnews-sidebar', next ? 'open' : 'closed'); } catch {}
   }
 
   const loadArticles = useCallback(async () => {
@@ -251,30 +258,58 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <main className={`mx-auto px-4 py-2 lg:py-6 ${selectedArticle ? 'max-w-[1800px]' : viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
+      {/* ── Mobile Header Bar ── */}
+      <header className="fixed top-0 inset-x-0 z-30 bg-brand-sidebar lg:hidden">
+        <div className="flex items-center justify-between px-4 h-14">
+          <img src="/logo-white.svg" alt="LexLens" className="h-7" />
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="p-2.5 rounded-lg text-[#8A9A7C] hover:text-white transition-colors"
+              title="Search"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2.5 rounded-lg text-[#8A9A7C] hover:text-white transition-colors"
+              title="Filters"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        {/* Mobile search dropdown */}
+        {mobileSearchOpen && (
+          <div className="px-4 pb-3">
+            <SearchBar onSearch={(q) => { handleSearch(q); setMobileSearchOpen(false); }} initialQuery={searchQuery} dark />
+          </div>
+        )}
+      </header>
+
+      {/* ── Mobile Sidebar Overlay ── */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <main className={`mx-auto px-4 pt-16 pb-4 lg:pt-6 lg:pb-6 ${selectedArticle ? 'max-w-[1800px]' : viewMode === 'card' ? 'max-w-7xl' : 'max-w-5xl'}`}>
         <div className={`grid grid-cols-1 ${
           sidebarOpen
             ? (selectedArticle ? 'lg:grid-cols-[280px_1fr_520px]' : 'lg:grid-cols-[280px_1fr]')
             : (selectedArticle ? 'lg:grid-cols-[56px_1fr_520px]' : 'lg:grid-cols-[56px_1fr]')
         } gap-6`}>
-          {/* Sidebar */}
-          <aside className={`overflow-visible ${!sidebarOpen ? 'relative z-10' : ''}`}>
-            <div className={`bg-brand-sidebar rounded-xl lg:sticky lg:top-6 overflow-visible ${sidebarOpen ? 'p-4' : 'p-2 lg:py-3 lg:px-2'}`}>
-              {/* Mobile compact bar - shown when sidebar is closed on mobile */}
-              {!sidebarOpen && (
-                <div className="flex lg:hidden items-center justify-between px-1">
-                  <img src="/logo-white.svg" alt="LexLens" className="h-7" />
-                  <button
-                    onClick={handleSidebarToggle}
-                    className="p-1.5 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors"
-                    title="Expand sidebar"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                    </svg>
-                  </button>
-                </div>
-              )}
+          {/* Sidebar — overlay on mobile, in-grid on desktop */}
+          <aside className={`
+            ${sidebarOpen
+              ? 'fixed inset-y-0 left-0 w-[300px] z-40 lg:relative lg:w-auto lg:z-auto overflow-y-auto lg:overflow-visible'
+              : 'hidden lg:block overflow-visible relative z-10'
+            }
+          `}>
+            <div className={`bg-brand-sidebar rounded-none lg:rounded-xl lg:sticky lg:top-6 overflow-visible ${sidebarOpen ? 'p-4 min-h-full lg:min-h-0' : 'p-2 lg:py-3 lg:px-2'}`}>
 
               {/* Desktop toggle button - chevron collapse/expand */}
               <div className={`hidden lg:flex ${sidebarOpen ? 'justify-end' : 'justify-center'} mb-3`}>
@@ -547,6 +582,32 @@ export default function Home() {
 
           {/* Articles area */}
           <div>
+            {/* Mobile feed type tabs */}
+            <div className="flex gap-1.5 overflow-x-auto pb-3 -mx-1 px-1 lg:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+              {([
+                { value: 'all' as FeedType, label: 'All' },
+                { value: 'news' as FeedType, label: 'News' },
+                { value: 'blogpost' as FeedType, label: 'Blogposts' },
+                { value: 'judgment' as FeedType, label: 'Case Law' },
+                { value: 'competition' as FeedType, label: 'Competition' },
+                { value: 'regulatory' as FeedType, label: 'Regulatory' },
+                { value: 'legislation' as FeedType, label: 'Legislation' },
+                { value: 'procurement' as FeedType, label: 'Procurement' },
+              ]).map(ft => (
+                <button
+                  key={ft.value}
+                  onClick={() => handleFeedTypeChange(ft.value)}
+                  className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all flex-shrink-0 ${
+                    feedType === ft.value
+                      ? 'bg-brand-body text-white shadow-sm'
+                      : 'bg-white text-brand-muted border border-brand-border'
+                  }`}
+                >
+                  {ft.label}
+                </button>
+              ))}
+            </div>
+
             {/* View toggle + Active filters summary */}
             <div className="flex items-center justify-between pb-3">
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
@@ -625,7 +686,7 @@ export default function Home() {
               {/* Card/List view toggle */}
               <div className="flex items-center gap-1 ml-3 flex-shrink-0">
                 <button
-                  onClick={() => { setViewMode('card'); localStorage.setItem('lexnews-view-mode', 'card'); }}
+                  onClick={() => { setViewMode('card'); try { localStorage.setItem('lexnews-view-mode', 'card'); } catch {} }}
                   className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewMode === 'card' ? 'bg-brand-body text-white' : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'}`}
                   title="Card view"
                 >
@@ -634,7 +695,7 @@ export default function Home() {
                   </svg>
                 </button>
                 <button
-                  onClick={() => { setViewMode('list'); localStorage.setItem('lexnews-view-mode', 'list'); }}
+                  onClick={() => { setViewMode('list'); try { localStorage.setItem('lexnews-view-mode', 'list'); } catch {} }}
                   className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-brand-body text-white' : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'}`}
                   title="List view"
                 >
@@ -714,7 +775,7 @@ export default function Home() {
                 <button
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page <= 1}
-                  className="px-3 py-1.5 text-sm border border-brand-border rounded-lg hover:bg-brand-bg-hover disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm border border-brand-border rounded-lg hover:bg-brand-bg-hover disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
@@ -724,7 +785,7 @@ export default function Home() {
                 <button
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page >= totalPages}
-                  className="px-3 py-1.5 text-sm border border-brand-border rounded-lg hover:bg-brand-bg-hover disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm border border-brand-border rounded-lg hover:bg-brand-bg-hover disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

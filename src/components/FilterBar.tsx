@@ -109,7 +109,7 @@ export default function FilterBar({
           <button
             key={ft.value}
             onClick={() => onFeedTypeChange(ft.value)}
-            className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+            className={`px-3 py-2 sm:px-2.5 sm:py-1.5 text-xs font-medium rounded-md transition-all ${
               selectedFeedType === ft.value
                 ? dark ? 'bg-brand-accent text-white shadow-sm' : 'bg-brand-body text-white shadow-sm'
                 : dark ? 'text-[#8A9A7C] hover:text-white' : 'text-brand-muted hover:text-brand-body'
@@ -131,7 +131,7 @@ export default function FilterBar({
                   ? { preset: 'custom', from: dateFilter.from || '', to: dateFilter.to || '' }
                   : { preset: dp.value }
               )}
-              className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
+              className={`px-3 py-2 sm:px-2.5 sm:py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
                 dateFilter.preset === dp.value
                   ? dark ? 'bg-brand-accent text-white shadow-sm' : 'bg-brand-body text-white shadow-sm'
                   : dark ? 'text-[#8A9A7C] hover:text-white' : 'text-brand-muted hover:text-brand-body'

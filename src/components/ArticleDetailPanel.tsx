@@ -98,7 +98,7 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
       {/* Mobile backdrop */}
       <div className="fixed inset-0 bg-black/30 z-20 lg:hidden" onClick={onClose} />
 
-      <div className="panel-enter fixed top-0 right-0 w-[380px] max-w-[90vw] h-screen overflow-y-auto bg-brand-bg-card border-l border-brand-border z-30 lg:relative lg:top-0 lg:right-auto lg:w-auto lg:max-w-none lg:h-screen lg:sticky lg:top-6 lg:z-auto">
+      <div className="panel-enter fixed inset-x-0 bottom-0 h-[85vh] rounded-t-2xl sm:rounded-t-none sm:inset-x-auto sm:top-0 sm:right-0 sm:bottom-auto sm:w-[380px] sm:max-w-[90vw] sm:h-screen overflow-y-auto bg-brand-bg-card border-t sm:border-t-0 sm:border-l border-brand-border z-30 lg:relative lg:top-0 lg:right-auto lg:w-auto lg:max-w-none lg:h-screen lg:sticky lg:top-6 lg:z-auto">
       {/* Top bar */}
       <div className="flex items-center justify-between p-4 border-b border-brand-border">
         <div className="flex items-center gap-2">
