@@ -165,8 +165,9 @@ export default function Home() {
   }, [filtersReady, loadArticles]);
 
   // Handle ?article=ID deep-link (from shared article page or post-signup redirect)
+  // Runs after filtersReady so initial filter setup won't clear the selected article
   useEffect(() => {
-    if (!isLoggedIn || deepLinkHandled.current) return;
+    if (!filtersReady || deepLinkHandled.current) return;
     const params = new URLSearchParams(window.location.search);
     let articleId = params.get('article');
     // Also check sessionStorage (set when user clicks CTA on shared article page)
@@ -183,8 +184,6 @@ export default function Home() {
     deepLinkHandled.current = true;
     // Clean URL
     window.history.replaceState({}, '', '/');
-    // Switch to "all" feed type so article is visible regardless of feed
-    setFeedType('all');
     // Fetch article from public endpoint and open it
     const API = process.env.NEXT_PUBLIC_API_URL || 'https://lexnews-backend-d0f19fef512a.herokuapp.com/api';
     fetch(`${API}/public/articles/${articleId}`)
@@ -203,7 +202,7 @@ export default function Home() {
         }
       })
       .catch(() => {});
-  }, [isLoggedIn]);
+  }, [filtersReady]);
 
   // Reset page and close panel when filters change
   useEffect(() => {
