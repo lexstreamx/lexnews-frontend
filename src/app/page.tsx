@@ -669,60 +669,62 @@ export default function Home() {
 
           {/* Articles area */}
           <div>
-            {/* Mobile feed tabs (+ lenses if logged in) — single scrollable row */}
-            {isLoggedIn ? (
-              <div className="lg:hidden">
-                <LensBar
-                  lenses={lenses}
-                  activeLensId={activeLensId}
-                  onActivateLens={handleActivateLens}
-                  onDeactivateLens={handleDeactivateLens}
-                  onCreateLens={handleCreateLens}
-                  onDeleteLens={handleDeleteLens}
+            {/* Row 1 (mobile): Feed type tabs including All */}
+            <div className="flex gap-1.5 pb-2 overflow-x-auto lg:hidden scrollbar-thin">
+              {([
+                { value: 'all' as FeedType, label: 'All' },
+                { value: 'news' as FeedType, label: 'News' },
+                { value: 'regulatory' as FeedType, label: 'Regulatory' },
+                { value: 'judgment' as FeedType, label: 'Case Law' },
+                { value: 'competition' as FeedType, label: 'Competition' },
+              ]).map(ft => (
+                <button
+                  key={ft.value}
+                  onClick={() => handleFeedTypeChange(ft.value)}
+                  className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap shrink-0 transition-all ${
+                    feedType === ft.value
+                      ? 'bg-brand-body text-white shadow-sm'
+                      : 'bg-white text-brand-muted border border-brand-border'
+                  }`}
                 >
-                  {([
-                    { value: 'news' as FeedType, label: 'News' },
-                    { value: 'regulatory' as FeedType, label: 'Regulatory' },
-                    { value: 'judgment' as FeedType, label: 'Case Law' },
-                    { value: 'competition' as FeedType, label: 'Competition' },
-                  ]).map(ft => (
-                    <button
-                      key={ft.value}
-                      onClick={() => handleFeedTypeChange(ft.value)}
-                      className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap shrink-0 transition-all ${
-                        feedType === ft.value
-                          ? 'bg-brand-body text-white shadow-sm'
-                          : 'bg-white text-brand-muted border border-brand-border'
-                      }`}
-                    >
-                      {ft.label}
-                    </button>
-                  ))}
-                  {lenses.length > 0 && (
-                    <div className="w-px h-5 bg-brand-border/60 shrink-0 mx-0.5" />
-                  )}
-                </LensBar>
-              </div>
-            ) : (
-              <div className="flex gap-1.5 pb-3 lg:hidden">
-                {([
-                  { value: 'news' as FeedType, label: 'News' },
-                  { value: 'regulatory' as FeedType, label: 'Regulatory' },
-                  { value: 'judgment' as FeedType, label: 'Case Law' },
-                  { value: 'competition' as FeedType, label: 'Competition' },
-                ]).map(ft => (
+                  {ft.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Row 2 (mobile): Lenses + view switcher */}
+            {isLoggedIn && (
+              <div className="flex items-center pb-2 lg:hidden">
+                <div className="flex-1 min-w-0">
+                  <LensBar
+                    lenses={lenses}
+                    activeLensId={activeLensId}
+                    onActivateLens={handleActivateLens}
+                    onDeactivateLens={handleDeactivateLens}
+                    onCreateLens={handleCreateLens}
+                    onDeleteLens={handleDeleteLens}
+                  />
+                </div>
+                <div className="flex items-center gap-1 ml-2 shrink-0">
                   <button
-                    key={ft.value}
-                    onClick={() => handleFeedTypeChange(ft.value)}
-                    className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
-                      feedType === ft.value
-                        ? 'bg-brand-body text-white shadow-sm'
-                        : 'bg-white text-brand-muted border border-brand-border'
-                    }`}
+                    onClick={() => { setViewMode('card'); try { localStorage.setItem('lexnews-view-mode', 'card'); } catch {} }}
+                    className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewMode === 'card' ? 'bg-brand-body text-white' : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'}`}
+                    title="Card view"
                   >
-                    {ft.label}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
+                    </svg>
                   </button>
-                ))}
+                  <button
+                    onClick={() => { setViewMode('list'); try { localStorage.setItem('lexnews-view-mode', 'list'); } catch {} }}
+                    className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewMode === 'list' ? 'bg-brand-body text-white' : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'}`}
+                    title="List view"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             )}
 
@@ -740,19 +742,8 @@ export default function Home() {
               </div>
             )}
 
-            {/* View toggle + Active filters summary */}
+            {/* Filters summary + view toggle (desktop) */}
             <div className="flex items-center justify-between pb-3">
-              {/* All pill on mobile, next to view switcher */}
-              <button
-                onClick={() => handleFeedTypeChange('all')}
-                className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all mr-2 lg:hidden ${
-                  feedType === 'all'
-                    ? 'bg-brand-body text-white shadow-sm'
-                    : 'bg-white text-brand-muted border border-brand-border'
-                }`}
-              >
-                All
-              </button>
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
             {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || selectedInstruments.length > 0 || selectedLegalBases.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all' || activeLensId) && (
               <>
@@ -830,8 +821,8 @@ export default function Home() {
             )}
               </div>
 
-              {/* Card/List view toggle */}
-              <div className="flex items-center gap-1 ml-3 flex-shrink-0">
+              {/* Card/List view toggle — hidden on mobile when logged in (shown in lens row instead) */}
+              <div className={`flex items-center gap-1 ml-3 flex-shrink-0 ${isLoggedIn ? 'hidden lg:flex' : ''}`}>
                 <button
                   onClick={() => { setViewMode('card'); try { localStorage.setItem('lexnews-view-mode', 'card'); } catch {} }}
                   className={`p-1.5 rounded-md transition-colors cursor-pointer ${viewMode === 'card' ? 'bg-brand-body text-white' : 'text-brand-muted hover:text-brand-body hover:bg-brand-bg-hover'}`}
