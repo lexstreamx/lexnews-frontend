@@ -78,7 +78,7 @@ export default function Home() {
     if (jurisdictions.length === 0) return; // Wait for jurisdictions to load
 
     if (user.jurisdiction && jurisdictions.includes(user.jurisdiction)) {
-      setSelectedJurisdictions([user.jurisdiction, 'EU', 'International'].filter(j => jurisdictions.includes(j)));
+      setSelectedJurisdictions([user.jurisdiction, 'EU', 'International', 'US'].filter(j => jurisdictions.includes(j)));
     } else {
       setSelectedJurisdictions(['EU', 'International', 'US'].filter(j => jurisdictions.includes(j)));
     }
