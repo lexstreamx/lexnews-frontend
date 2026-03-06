@@ -24,7 +24,7 @@ export default function LensBar({
 
   return (
     <>
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+      <div className="flex items-center gap-2.5 overflow-x-auto pt-1.5 pb-2 pr-1 scrollbar-thin">
         {lenses.map(lens => (
           <LensChip
             key={lens.id}
@@ -99,7 +99,7 @@ function LensChip({
             e.stopPropagation();
             setConfirmDelete(true);
           }}
-          className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+          className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm"
           title="Delete lens"
         >
           ×
