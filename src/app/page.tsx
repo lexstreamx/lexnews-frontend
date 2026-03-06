@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
 import FilterBar from '@/components/FilterBar';
 import ArticleCard from '@/components/ArticleCard';
@@ -13,6 +14,7 @@ import { Article, Category, FeedType, ViewMode, DateFilter } from '@/types';
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -229,6 +231,12 @@ export default function Home() {
   // Show login screen if not authenticated
   if (!user) {
     return <LoginScreen />;
+  }
+
+  // Redirect standalone users who haven't completed onboarding
+  if (user.auth_provider === 'standalone' && !user.onboarding_completed) {
+    router.push('/onboarding');
+    return null;
   }
 
   return (

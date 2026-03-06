@@ -6,12 +6,14 @@ import { fetchCurrentUser, logout as apiLogout, loginWithEmail } from './api';
 export interface User {
   id: number;
   email: string;
-  username: string;
+  username: string | null;
   display_name: string;
   avatar_url: string | null;
   category_slugs: string[];
   jurisdiction: string | null;
   learnworlds_tags: string[];
+  auth_provider: 'learnworlds' | 'standalone';
+  onboarding_completed: boolean;
 }
 
 interface AuthContextType {
@@ -19,6 +21,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: User | null) => void;
   loginError: string | null;
   loginLoading: boolean;
 }
@@ -60,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, loginError, loginLoading }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, setUser, loginError, loginLoading }}>
       {children}
     </AuthContext.Provider>
   );

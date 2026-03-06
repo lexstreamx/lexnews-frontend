@@ -145,6 +145,83 @@ export async function loginWithEmail(email: string, password: string) {
   return data;
 }
 
+// ─── Standalone auth API functions ─────────────────────────────
+
+export async function register(email: string, password: string, displayName: string) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email, password, displayName }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Registration failed');
+  return data;
+}
+
+export async function verifyEmail(token: string) {
+  const res = await fetch(`${API_BASE}/auth/verify-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ token }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Verification failed');
+  // Store session token
+  if (data.token) setStoredToken(data.token);
+  return data;
+}
+
+export async function resendVerification(email: string) {
+  const res = await fetch(`${API_BASE}/auth/resend-verification`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to resend');
+  return data;
+}
+
+export async function forgotPassword(email: string) {
+  const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+export async function resetPassword(token: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ token, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Reset failed');
+  return data;
+}
+
+export async function completeOnboarding(categorySlugs: string[], jurisdiction: string) {
+  const res = await fetch(`${API_BASE}/auth/onboarding`, authFetchOpts({
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categorySlugs, jurisdiction }),
+  }));
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Onboarding failed');
+  // Store updated session token
+  if (data.token) setStoredToken(data.token);
+  return data;
+}
+
 // Digest API functions
 import { DigestPreferences, DigestLog } from '@/types';
 
