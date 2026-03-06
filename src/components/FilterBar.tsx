@@ -41,6 +41,11 @@ const INSTRUMENT_OPTIONS = [
   { value: 'fsr', label: 'FSR' },
 ];
 
+const LEGAL_BASIS_OPTIONS = [
+  { value: '101', label: 'Art. 101 TFEU' },
+  { value: '102', label: 'Art. 102 TFEU' },
+];
+
 const PT_COURT_OPTIONS = [
   { value: 'Supremo Tribunal de Justiça', label: 'STJ' },
   { value: 'Supremo Tribunal Administrativo', label: 'STA' },
@@ -62,12 +67,14 @@ interface FilterBarProps {
   selectedCourts: string[];
   selectedDocTypes: string[];
   selectedInstruments: string[];
+  selectedLegalBases: string[];
   onFeedTypeChange: (type: FeedType) => void;
   onCategoriesChange: (slugs: string[]) => void;
   onJurisdictionsChange: (jurisdictions: string[]) => void;
   onCourtsChange: (courts: string[]) => void;
   onDocTypesChange: (docTypes: string[]) => void;
   onInstrumentsChange: (instruments: string[]) => void;
+  onLegalBasesChange: (legalBases: string[]) => void;
   dateFilter: DateFilter;
   onDateFilterChange: (filter: DateFilter) => void;
   dark?: boolean;
@@ -82,12 +89,14 @@ export default function FilterBar({
   selectedCourts,
   selectedDocTypes,
   selectedInstruments,
+  selectedLegalBases,
   onFeedTypeChange,
   onCategoriesChange,
   onJurisdictionsChange,
   onCourtsChange,
   onDocTypesChange,
   onInstrumentsChange,
+  onLegalBasesChange,
   dateFilter,
   onDateFilterChange,
   dark = false,
@@ -225,6 +234,16 @@ export default function FilterBar({
             onChange={onInstrumentsChange}
             dark={dark}
           />
+          {/* Legal basis filter — only when antitrust is selected (or no instrument filter) */}
+          {(selectedInstruments.length === 0 || selectedInstruments.includes('antitrust')) && (
+            <MultiSelectDropdown
+              label="Legal Basis"
+              options={LEGAL_BASIS_OPTIONS}
+              selected={selectedLegalBases}
+              onChange={onLegalBasesChange}
+              dark={dark}
+            />
+          )}
         </div>
       )}
 

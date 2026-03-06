@@ -42,6 +42,7 @@ interface FetchArticlesParams {
   courts?: string[];
   doc_types?: string[];
   competition_instruments?: string[];
+  legal_bases?: string[];
   search?: string;
   saved_only?: boolean;
   date_range?: string;
@@ -60,6 +61,7 @@ export async function fetchArticles(params: FetchArticlesParams = {}) {
   if (params.courts && params.courts.length > 0) searchParams.set('court', params.courts.join(','));
   if (params.doc_types && params.doc_types.length > 0) searchParams.set('doc_type', params.doc_types.join(','));
   if (params.competition_instruments && params.competition_instruments.length > 0) searchParams.set('competition_instrument', params.competition_instruments.join(','));
+  if (params.legal_bases && params.legal_bases.length > 0) searchParams.set('legal_basis', params.legal_bases.join(','));
   if (params.search) searchParams.set('search', params.search);
   if (params.saved_only) searchParams.set('saved_only', 'true');
   if (params.date_range) searchParams.set('date_range', params.date_range);

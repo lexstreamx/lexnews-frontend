@@ -42,6 +42,7 @@ export default function Home() {
   const [selectedCourts, setSelectedCourts] = useState<string[]>([]);
   const [selectedDocTypes, setSelectedDocTypes] = useState<string[]>([]);
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([]);
+  const [selectedLegalBases, setSelectedLegalBases] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [dateFilter, setDateFilter] = useState<DateFilter>({ preset: 'all' });
@@ -121,6 +122,7 @@ export default function Home() {
         courts: selectedCourts.length > 0 ? selectedCourts : undefined,
         doc_types: selectedDocTypes.length > 0 ? selectedDocTypes : undefined,
         competition_instruments: selectedInstruments.length > 0 ? selectedInstruments : undefined,
+        legal_bases: selectedLegalBases.length > 0 ? selectedLegalBases : undefined,
         search: searchQuery || undefined,
         saved_only: showSaved || undefined,
         date_range: dateFilter.preset !== 'all' && dateFilter.preset !== 'custom'
@@ -140,7 +142,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, searchQuery, showSaved, dateFilter]);
+  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, selectedLegalBases, searchQuery, showSaved, dateFilter]);
 
   const loadFilters = useCallback(async () => {
     try {
@@ -237,6 +239,15 @@ export default function Home() {
     }
     if (type !== 'competition') {
       setSelectedInstruments([]);
+      setSelectedLegalBases([]);
+    }
+  }
+
+  function handleInstrumentsChange(instruments: string[]) {
+    setSelectedInstruments(instruments);
+    // Clear legal basis filter if antitrust is no longer selected
+    if (instruments.length > 0 && !instruments.includes('antitrust')) {
+      setSelectedLegalBases([]);
     }
   }
 
@@ -401,12 +412,14 @@ export default function Home() {
                   selectedCourts={selectedCourts}
                   selectedDocTypes={selectedDocTypes}
                   selectedInstruments={selectedInstruments}
+                  selectedLegalBases={selectedLegalBases}
                   onFeedTypeChange={handleFeedTypeChange}
                   onCategoriesChange={setSelectedCategories}
                   onJurisdictionsChange={setSelectedJurisdictions}
                   onCourtsChange={setSelectedCourts}
                   onDocTypesChange={setSelectedDocTypes}
-                  onInstrumentsChange={setSelectedInstruments}
+                  onInstrumentsChange={handleInstrumentsChange}
+                  onLegalBasesChange={setSelectedLegalBases}
                   dateFilter={dateFilter}
                   onDateFilterChange={setDateFilter}
                   dark
@@ -660,7 +673,7 @@ export default function Home() {
                 All
               </button>
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
-            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || selectedInstruments.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all') && (
+            {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || selectedInstruments.length > 0 || selectedLegalBases.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all') && (
               <>
                 <span>Showing:</span>
                 {showSaved && <span className="px-2 py-0.5 bg-brand-accent/10 text-brand-accent rounded text-xs font-medium">Saved only</span>}
@@ -711,6 +724,7 @@ export default function Home() {
                 }).join(', ')}</span>}
                 {selectedDocTypes.length > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-medium">{selectedDocTypes.map(d => d === 'Opinion of Advocate General' ? 'AG Opinion' : d).join(', ')}</span>}
                 {selectedInstruments.length > 0 && <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-medium">{selectedInstruments.map(i => i === 'antitrust' ? 'Antitrust' : i === 'merger' ? 'Merger' : i === 'dma' ? 'DMA' : i === 'fsr' ? 'FSR' : i).join(', ')}</span>}
+                {selectedLegalBases.length > 0 && <span className="px-2 py-0.5 bg-red-50 text-red-700 rounded text-xs font-medium">{selectedLegalBases.map(b => b === '101' ? 'Art. 101' : b === '102' ? 'Art. 102' : b).join(', ')}</span>}
                 {searchQuery && <span className="px-2 py-0.5 bg-brand-body/10 text-brand-body rounded text-xs font-medium">&ldquo;{searchQuery}&rdquo;</span>}
                 <button
                   onClick={() => {
@@ -720,6 +734,7 @@ export default function Home() {
                     setSelectedCourts([]);
                     setSelectedDocTypes([]);
                     setSelectedInstruments([]);
+                    setSelectedLegalBases([]);
                     setSearchQuery('');
                     setShowSaved(false);
                     setDateFilter({ preset: 'all' });
