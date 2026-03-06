@@ -24,7 +24,7 @@ export default function LensBar({
 
   return (
     <>
-      <div className="flex items-center gap-2.5 overflow-x-auto pt-1.5 pb-2 pr-1 scrollbar-thin">
+      <div className="flex items-center gap-2.5 overflow-x-auto pt-3 pb-2 pr-1 scrollbar-thin">
         {lenses.map(lens => (
           <LensChip
             key={lens.id}
