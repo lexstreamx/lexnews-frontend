@@ -76,8 +76,6 @@ function LensChip({
   onToggle: () => void;
   onDelete: () => void;
 }) {
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
   return (
     <div className="group relative shrink-0">
       <button
@@ -92,47 +90,19 @@ function LensChip({
         {lens.name}
       </button>
 
-      {/* Delete button — shows on hover */}
-      {!confirmDelete && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setConfirmDelete(true);
-          }}
-          className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm"
-          title="Delete lens"
-        >
-          ×
-        </button>
-      )}
-
-      {/* Confirm delete popover */}
-      {confirmDelete && (
-        <div className="absolute top-full left-0 mt-1 bg-white border border-brand-border rounded-lg shadow-lg p-2 z-20 whitespace-nowrap">
-          <p className="text-xs text-brand-muted mb-1.5">Delete this lens?</p>
-          <div className="flex gap-1">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-                setConfirmDelete(false);
-              }}
-              className="px-2 py-0.5 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-            >
-              Delete
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setConfirmDelete(false);
-              }}
-              className="px-2 py-0.5 bg-brand-bg text-brand-muted rounded text-xs hover:bg-brand-border"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Delete button — shows on hover, confirms via native dialog */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          if (window.confirm(`Delete lens #${lens.name}?`)) {
+            onDelete();
+          }
+        }}
+        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm"
+        title="Delete lens"
+      >
+        ×
+      </button>
     </div>
   );
 }
