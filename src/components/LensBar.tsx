@@ -165,7 +165,7 @@ function CreateLensModal({
           <div>
             <label className="block text-xs font-medium text-brand-muted mb-1">Name</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-accent font-semibold text-sm">#</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-accent font-semibold text-base">#</span>
               <input
                 type="text"
                 value={name}
@@ -173,7 +173,7 @@ function CreateLensModal({
                 placeholder="e.g. Vodafone"
                 maxLength={50}
                 autoFocus
-                className="w-full pl-7 pr-3 py-2 border border-brand-border rounded-lg text-sm text-brand-body placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/30"
+                className="w-full pl-7 pr-3 py-2 border border-brand-border rounded-lg text-base text-brand-body placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/30"
               />
             </div>
           </div>
@@ -186,7 +186,7 @@ function CreateLensModal({
               onChange={(e) => handleKeywordsChange(e.target.value)}
               placeholder="e.g. Vodafone VDF Ziggo"
               maxLength={200}
-              className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm text-brand-body placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/30"
+              className="w-full px-3 py-2 border border-brand-border rounded-lg text-base text-brand-body placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/30"
             />
             <p className="text-[10px] text-brand-muted mt-1">Searches article titles and descriptions</p>
           </div>
