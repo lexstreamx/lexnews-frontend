@@ -289,3 +289,19 @@ export async function fetchDigestHistory(): Promise<{ logs: DigestLog[] }> {
   if (!res.ok) throw new Error('Failed to fetch digest history');
   return res.json();
 }
+
+// Admin API functions
+
+export async function fetchAdminOverview() {
+  const res = await fetch(`${API_BASE}/admin/overview`, authFetchOpts());
+  if (res.status === 403) throw new Error('Forbidden');
+  if (!res.ok) throw new Error('Failed to fetch admin overview');
+  return res.json();
+}
+
+export async function fetchAdminEngagement() {
+  const res = await fetch(`${API_BASE}/admin/engagement`, authFetchOpts());
+  if (res.status === 403) throw new Error('Forbidden');
+  if (!res.ok) throw new Error('Failed to fetch admin engagement');
+  return res.json();
+}
