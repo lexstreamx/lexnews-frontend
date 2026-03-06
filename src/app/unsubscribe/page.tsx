@@ -80,7 +80,7 @@ function UnsubscribeContent() {
         {/* Footer */}
         <div className="mt-8 pt-4 border-t border-brand-border">
           <p className="text-xs text-brand-muted">
-            LexLens — Legal Intelligence Platform
+            LexLens — Legal Intelligence
           </p>
         </div>
       </div>

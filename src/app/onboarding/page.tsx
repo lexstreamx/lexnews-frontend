@@ -131,7 +131,7 @@ export default function OnboardingPage() {
         <div className="max-w-2xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
             <img src="/logo-white.svg" alt="LexLens" className="h-8 mb-1" />
-            <p className="text-[#8A9A7C] text-xs">Legal Intelligence Platform</p>
+            <p className="text-[#8A9A7C] text-xs">Legal Intelligence</p>
           </div>
           <div className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${

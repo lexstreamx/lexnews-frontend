@@ -154,7 +154,7 @@ export default function LoginScreen() {
         <div className="bg-brand-sidebar rounded-xl px-6 py-8 mb-6 flex flex-col items-center">
           <img src="/logo-white.svg" alt="LexLens" className="h-10 mb-3" />
           <p className="text-[#8A9A7C] text-sm">
-            Legal Intelligence Platform
+            Legal Intelligence
           </p>
         </div>
 
