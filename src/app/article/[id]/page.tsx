@@ -1,6 +1,25 @@
 import { Metadata } from 'next';
-import { FEED_TYPE_LABELS, FEED_TYPE_COLORS } from '@/components/ArticleCard';
 import ArticleCTA from './ArticleCTA';
+
+const FEED_TYPE_LABELS: Record<string, string> = {
+  news: 'News',
+  blogpost: 'Blogpost',
+  judgment: 'Case Law',
+  regulatory: 'Regulatory',
+  legislation: 'Legislation',
+  procurement: 'Procurement',
+  competition: 'Competition',
+};
+
+const FEED_TYPE_COLORS: Record<string, string> = {
+  news: 'bg-blue-100 text-blue-800',
+  blogpost: 'bg-blue-100 text-blue-800',
+  judgment: 'bg-amber-100 text-amber-800',
+  regulatory: 'bg-green-100 text-green-800',
+  legislation: 'bg-brand-accent/15 text-brand-accent',
+  procurement: 'bg-purple-100 text-purple-800',
+  competition: 'bg-red-100 text-red-800',
+};
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://lexnews-backend-d0f19fef512a.herokuapp.com/api';
 

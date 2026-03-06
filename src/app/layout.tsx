@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: "Lexlens | New Legal Intelligence",
   description: "Get centralized sources of information, from legal news, blogposts, judgments & regulatory updates. All in one place.",
   metadataBase: new URL("https://lexlens.lexstream.io"),
+  icons: {
+    icon: "/WebIcon.png",
+    apple: "/WebIcon.png",
+  },
   openGraph: {
     title: "Lexlens | New Legal Intelligence",
     description: "Get centralized sources of information, from legal news, blogposts, judgments & regulatory updates. All in one place.",
@@ -21,7 +25,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Lexlens | New Legal Intelligence",
     description: "Get centralized sources of information, from legal news, blogposts, judgments & regulatory updates. All in one place.",
     images: ["/logo_chocolate.png"],

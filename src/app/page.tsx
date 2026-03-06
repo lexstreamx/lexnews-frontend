@@ -164,11 +164,21 @@ export default function Home() {
     if (filtersReady) loadArticles();
   }, [filtersReady, loadArticles]);
 
-  // Handle ?article=ID deep-link (from shared article page "Open in LexLens")
+  // Handle ?article=ID deep-link (from shared article page or post-signup redirect)
   useEffect(() => {
     if (!isLoggedIn || deepLinkHandled.current) return;
     const params = new URLSearchParams(window.location.search);
-    const articleId = params.get('article');
+    let articleId = params.get('article');
+    // Also check sessionStorage (set when user clicks CTA on shared article page)
+    if (!articleId) {
+      try {
+        const stored = sessionStorage.getItem('lexlens_redirect_article');
+        if (stored) {
+          articleId = stored;
+          sessionStorage.removeItem('lexlens_redirect_article');
+        }
+      } catch {}
+    }
     if (!articleId) return;
     deepLinkHandled.current = true;
     // Clean URL

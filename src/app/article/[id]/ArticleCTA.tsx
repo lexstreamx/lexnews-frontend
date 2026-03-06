@@ -25,10 +25,15 @@ export default function ArticleCTA({ articleId }: { articleId: number }) {
     );
   }
 
+  function saveRedirect() {
+    try { sessionStorage.setItem('lexlens_redirect_article', String(articleId)); } catch {}
+  }
+
   return (
     <div className="space-y-3">
       <a
         href="/"
+        onClick={saveRedirect}
         className="inline-flex items-center gap-2 px-8 py-3 bg-brand-accent text-white font-semibold rounded-lg hover:bg-brand-accent/90 transition-colors shadow-md"
       >
         Sign up for free
@@ -38,7 +43,7 @@ export default function ArticleCTA({ articleId }: { articleId: number }) {
       </a>
       <p className="text-brand-muted text-sm">
         Already have an account?{' '}
-        <a href="/" className="text-brand-accent font-medium hover:text-brand-accent/80">
+        <a href="/" onClick={saveRedirect} className="text-brand-accent font-medium hover:text-brand-accent/80">
           Sign in
         </a>
       </p>

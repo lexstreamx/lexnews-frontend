@@ -103,7 +103,16 @@ export default function OnboardingPage() {
       if (data.user) {
         setUser(data.user);
       }
-      router.push('/');
+      // Check for pending article redirect from shared link
+      let redirectUrl = '/';
+      try {
+        const pendingArticle = sessionStorage.getItem('lexlens_redirect_article');
+        if (pendingArticle) {
+          redirectUrl = `/?article=${pendingArticle}`;
+          sessionStorage.removeItem('lexlens_redirect_article');
+        }
+      } catch {}
+      router.push(redirectUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save preferences.');
       setSaving(false);
