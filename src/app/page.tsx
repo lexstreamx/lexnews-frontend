@@ -47,8 +47,10 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [dateFilter, setDateFilter] = useState<DateFilter>({ preset: 'all' });
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const pageRef = useRef(1);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showDigestSettings, setShowDigestSettings] = useState(false);
@@ -112,13 +114,20 @@ export default function Home() {
     try { localStorage.setItem('lexnews-sidebar', next ? 'open' : 'closed'); } catch {}
   }
 
-  const loadArticles = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const PAGE_SIZE = 50;
+
+  const loadArticles = useCallback(async (pageNum = 1) => {
+    const isFirstPage = pageNum === 1;
+    if (isFirstPage) {
+      setLoading(true);
+      setError(null);
+    } else {
+      setLoadingMore(true);
+    }
     try {
       const data = await fetchArticles({
-        page,
-        limit: 30,
+        page: pageNum,
+        limit: PAGE_SIZE,
         feed_type: feedType !== 'all' ? feedType : undefined,
         categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         jurisdictions: selectedJurisdictions.length > 0 ? selectedJurisdictions : undefined,
@@ -138,14 +147,19 @@ export default function Home() {
           ? dateFilter.to
           : undefined,
       });
-      setArticles(data.articles);
-      setTotalPages(data.pagination.pages);
+      if (isFirstPage) {
+        setArticles(data.articles);
+      } else {
+        setArticles(prev => [...prev, ...data.articles]);
+      }
+      setHasMore(data.articles.length >= PAGE_SIZE && pageNum < data.pagination.pages);
     } catch {
-      setError('Failed to load articles. Is the backend running?');
+      if (isFirstPage) setError('Failed to load articles. Is the backend running?');
     } finally {
-      setLoading(false);
+      if (isFirstPage) setLoading(false);
+      setLoadingMore(false);
     }
-  }, [page, feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, selectedLegalBases, searchQuery, showSaved, dateFilter]);
+  }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, selectedLegalBases, searchQuery, showSaved, dateFilter]);
 
   const loadFilters = useCallback(async () => {
     try {
@@ -171,6 +185,25 @@ export default function Home() {
   useEffect(() => {
     if (filtersReady) loadArticles();
   }, [filtersReady, loadArticles]);
+
+  // Infinite scroll — observe sentinel element
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
+          pageRef.current += 1;
+          loadArticles(pageRef.current);
+        }
+      },
+      { rootMargin: '200px' } // trigger 200px before reaching the bottom
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, loadArticles]);
 
   // Handle ?article=ID deep-link (from shared article page or post-signup redirect)
   // Runs after filtersReady so initial filter setup won't clear the selected article
@@ -212,9 +245,10 @@ export default function Home() {
       .catch(() => {});
   }, [filtersReady]);
 
-  // Reset page and close panel when filters change
+  // Reset to page 1 and close panel when filters change
   useEffect(() => {
-    setPage(1);
+    pageRef.current = 1;
+    setHasMore(true);
     setSelectedArticle(null);
   }, [feedType, selectedCategories, selectedJurisdictions, selectedCourts, selectedDocTypes, selectedInstruments, searchQuery, showSaved, dateFilter]);
 
@@ -907,27 +941,15 @@ export default function Home() {
               )
             )}
 
-            {/* Pagination */}
-            {!loading && totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 py-4">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page <= 1}
-                  className="px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm border border-brand-border rounded-lg hover:bg-brand-bg-hover disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <span className="text-sm text-brand-muted">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  disabled={page >= totalPages}
-                  className="px-4 py-2.5 sm:px-3 sm:py-1.5 text-sm border border-brand-border rounded-lg hover:bg-brand-bg-hover disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="h-4" />
+            {loadingMore && (
+              <div className="flex justify-center py-6">
+                <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
               </div>
+            )}
+            {!loading && !hasMore && articles.length > 0 && (
+              <p className="text-center text-xs text-brand-muted py-4">You&apos;ve reached the end</p>
             )}
           </div>
 
