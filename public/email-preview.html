@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Email Template Preview</title>
+  <style>
+    body { margin: 0; padding: 24px; background: #f0f0f0; font-family: system-ui; }
+    h2 { margin: 0 0 12px; font-size: 16px; color: #333; }
+    .preview-container { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; }
+    .preview-box { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .preview-box h2 { text-align: center; }
+    iframe { border: none; width: 520px; height: 680px; }
+  </style>
+</head>
+<body>
+  <div class="preview-container">
+    <div class="preview-box">
+      <h2>Verification Email</h2>
+      <iframe id="verify"></iframe>
+    </div>
+    <div class="preview-box">
+      <h2>Password Reset Email</h2>
+      <iframe id="reset"></iframe>
+    </div>
+  </div>
+  <script>
+    const logoUrl = '/logo-white.svg';
+    const sora = "'Sora','Segoe UI',Roboto,Arial,sans-serif";
+    const montserrat = "'Montserrat','Segoe UI',Roboto,Arial,sans-serif";
+    const template = (heading, body, buttonText, buttonUrl) => `<!DOCTYPE html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background:#FBF9F5;font-family:${montserrat};">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#FBF9F5;padding:40px 0;">
+<tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border-radius:12px;border:1px solid #DDD0C3;overflow:hidden;">
+  <tr><td style="background:#2A2F22;padding:24px 32px;">
+    <img src="${logoUrl}" alt="lexlens" width="120" height="36" style="display:block;border:0;" />
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <h1 style="font-family:${sora};color:#242E16;font-size:20px;font-weight:700;margin:0 0 16px;">${heading}</h1>
+    <p style="font-family:${montserrat};color:#2A2F22;font-size:14px;line-height:1.6;margin:0 0 24px;">${body}</p>
+    <a href="${buttonUrl}" style="font-family:${montserrat};display:inline-block;background:#C2785C;color:#FFFFFF;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">${buttonText}</a>
+    <p style="font-family:${montserrat};color:#A2A182;font-size:12px;margin:24px 0 0;">If the button doesn't work, copy and paste this link:<br/>
+    <a href="${buttonUrl}" style="color:#C2785C;word-break:break-all;">${buttonUrl}</a></p>
+  </td></tr>
+  <tr><td style="padding:16px 32px;border-top:1px solid #DDD0C3;">
+    <p style="font-family:${montserrat};color:#A2A182;font-size:11px;margin:0;">Lexlens&reg; part of the Lexstream&reg; Group</p>
+  </td></tr>
+</table>
+</td></tr></table></body></html>`;
+
+    const verifyHtml = template(
+      'Verify your email',
+      "Hi Francisco,<br/><br/>We are so happy to welcome you to Lexlens.<br/><br/>This will be your daily companion to keep track of the overload of information that floods your day. It's so simple that we don't need to teach you anything.<br/><br/>Just enjoy.<br/><br/>Start by confirming your email below and exploring personalized legal and compliance information. Let us know of any features you would like to have and we will try to develop them.<br/><br/>All the best,<br/>The Lens",
+      'Verify Email',
+      'https://lexlens.lexstream.io/verify-email?token=abc123example'
+    );
+
+    const resetHtml = template(
+      'Reset your password',
+      'Hi Francisco,<br/><br/>We received a request to reset your Lexlens password. Click the button below to choose a new one. This link expires in 1 hour.',
+      'Reset Password',
+      'https://lexlens.lexstream.io/reset-password?token=xyz789example'
+    );
+
+    document.getElementById('verify').srcdoc = verifyHtml;
+    document.getElementById('reset').srcdoc = resetHtml;
+  </script>
+</body>
+</html>
