@@ -136,6 +136,37 @@ export function ImportantIcon({ active }: { active: boolean }) {
   );
 }
 
+export function ShareIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
+    </svg>
+  );
+}
+
+export async function shareArticle(article: { id: number; title: string; description?: string | null }): Promise<'shared' | 'copied' | 'failed'> {
+  const shareUrl = `https://lexlens.lexstream.io/article/${article.id}`;
+  const shareText = article.description
+    ? article.description.substring(0, 120) + (article.description.length > 120 ? '...' : '')
+    : 'Check out this legal article on LexLens';
+
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    try {
+      await navigator.share({ title: article.title, text: shareText, url: shareUrl });
+      return 'shared';
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') return 'failed';
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    return 'copied';
+  } catch {
+    return 'failed';
+  }
+}
+
 // Clean CURIA-style garbage prefixes from titles client-side (safety net for old DB data)
 function cleanTitle(raw: string): string {
   let t = raw.replace(/^\d+\/[A-Za-z]+ [A-Za-z]+ \d+ \d+:\d+:\d+ [A-Z]+ \d+ : (?:null - )?/i, '');
@@ -281,6 +312,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
   const [importantCount, setImportantCount] = useState(article.important_count || 0);
   const [expanded, setExpanded] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
 
   // Sync local state from parent prop changes (e.g. when detail panel toggles)
   useEffect(() => { setImportant(article.is_important); }, [article.is_important]);
@@ -347,6 +379,15 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
     } catch {
       setImportant(wasImportant);
       setImportantCount(prev => wasImportant ? prev + 1 : prev - 1);
+    }
+  }
+
+  async function handleShare(e: React.MouseEvent) {
+    e.stopPropagation();
+    const result = await shareArticle(article);
+    if (result === 'copied') {
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus('idle'), 2000);
     }
   }
 
@@ -477,6 +518,20 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
               <ImportantIcon active={important} />
               {importantCount > 0 && <span className="text-[11px] font-medium">{importantCount}</span>}
             </button>
+            <div className="relative">
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1 px-2 py-1 rounded-md transition-colors cursor-pointer hover:bg-brand-bg-hover text-brand-muted hover:text-brand-body"
+                title="Share article"
+              >
+                <ShareIcon />
+              </button>
+              {shareStatus === 'copied' && (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-medium bg-brand-body text-white px-2 py-1 rounded-md whitespace-nowrap shadow-lg">
+                  Link copied!
+                </span>
+              )}
+            </div>
             <span className="ml-auto">{timeAgo(article.published_at)}</span>
           </div>
         </div>
@@ -528,7 +583,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
           <span className="text-xs text-brand-muted">
             {timeAgo(article.published_at)}
           </span>
-          {/* Important + Read + Bookmark inline on mobile */}
+          {/* Important + Share + Read + Bookmark inline on mobile */}
           <div className="flex items-center gap-1 ml-auto sm:hidden">
             <button
               onClick={toggleImportant}
@@ -536,6 +591,20 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
             >
               <ImportantIcon active={important} />
             </button>
+            <div className="relative">
+              <button
+                onClick={handleShare}
+                className="p-1 rounded-md transition-colors cursor-pointer text-brand-muted hover:text-brand-body"
+                title="Share article"
+              >
+                <ShareIcon />
+              </button>
+              {shareStatus === 'copied' && (
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-medium bg-brand-body text-white px-2 py-1 rounded-md whitespace-nowrap shadow-lg z-10">
+                  Link copied!
+                </span>
+              )}
+            </div>
             <button
               onClick={toggleRead}
               className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors cursor-pointer ${
@@ -631,7 +700,7 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         </div>
       </div>
 
-      {/* Read/Unread + Bookmark - desktop only */}
+      {/* Read/Unread + Share + Bookmark - desktop only */}
       <div className="hidden sm:flex flex-col items-center gap-1.5 flex-shrink-0 self-start">
         <button
           onClick={toggleRead}
@@ -641,6 +710,20 @@ export default function ArticleCard({ article, view, onSelect, isSelected, onRea
         >
           {read ? 'Read' : 'Unread'}
         </button>
+        <div className="relative">
+          <button
+            onClick={handleShare}
+            className="p-2 rounded-lg transition-colors hover:bg-brand-bg-hover text-brand-muted hover:text-brand-body"
+            title="Share article"
+          >
+            <ShareIcon />
+          </button>
+          {shareStatus === 'copied' && (
+            <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-medium bg-brand-body text-white px-2 py-1 rounded-md whitespace-nowrap shadow-lg z-10">
+              Link copied!
+            </span>
+          )}
+        </div>
         <button
           onClick={(e) => { e.stopPropagation(); toggleSave(); }}
           disabled={saving}

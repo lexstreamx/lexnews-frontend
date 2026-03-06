@@ -154,6 +154,7 @@ export default function Home() {
   }, []);
 
   const isLoggedIn = !!user;
+  const deepLinkHandled = useRef(false);
 
   useEffect(() => {
     if (isLoggedIn) loadFilters();
@@ -162,6 +163,37 @@ export default function Home() {
   useEffect(() => {
     if (filtersReady) loadArticles();
   }, [filtersReady, loadArticles]);
+
+  // Handle ?article=ID deep-link (from shared article page "Open in LexLens")
+  useEffect(() => {
+    if (!isLoggedIn || deepLinkHandled.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const articleId = params.get('article');
+    if (!articleId) return;
+    deepLinkHandled.current = true;
+    // Clean URL
+    window.history.replaceState({}, '', '/');
+    // Switch to "all" feed type so article is visible regardless of feed
+    setFeedType('all');
+    // Fetch article from public endpoint and open it
+    const API = process.env.NEXT_PUBLIC_API_URL || 'https://lexnews-backend-d0f19fef512a.herokuapp.com/api';
+    fetch(`${API}/public/articles/${articleId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.article) {
+          const a = data.article;
+          setSelectedArticle({
+            ...a,
+            categories: a.categories || [],
+            is_saved: false,
+            is_read: false,
+            is_important: false,
+            important_count: a.important_count || 0,
+          } as Article);
+        }
+      })
+      .catch(() => {});
+  }, [isLoggedIn]);
 
   // Reset page and close panel when filters change
   useEffect(() => {

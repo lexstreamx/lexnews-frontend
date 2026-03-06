@@ -7,6 +7,8 @@ import {
   timeAgo,
   BookmarkIcon,
   ImportantIcon,
+  ShareIcon,
+  shareArticle,
   ImagePlaceholder,
   FEED_TYPE_LABELS,
   FEED_TYPE_COLORS,
@@ -29,6 +31,7 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
   const [importantCount, setImportantCount] = useState(article?.important_count ?? 0);
   const [toggling, setToggling] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
 
   // Reset state when article changes
   const [prevId, setPrevId] = useState<number | null>(null);
@@ -38,6 +41,7 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
     setImportant(article.is_important);
     setImportantCount(article.important_count);
     setImgError(false);
+    setShareStatus('idle');
   }
 
   // Sync local state from parent prop changes (e.g. when card toggles)
@@ -93,6 +97,15 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
     }
   }
 
+  async function handleShare() {
+    if (!article) return;
+    const result = await shareArticle(article);
+    if (result === 'copied') {
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus('idle'), 2000);
+    }
+  }
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -132,6 +145,20 @@ export default function ArticleDetailPanel({ article, onClose, onImportantChange
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
             </svg>
           </a>
+          <div className="relative">
+            <button
+              onClick={handleShare}
+              className="p-2 rounded-lg hover:bg-brand-bg-hover text-brand-muted transition-colors"
+              title="Share article"
+            >
+              <ShareIcon />
+            </button>
+            {shareStatus === 'copied' && (
+              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[10px] font-medium bg-brand-body text-white px-2 py-1 rounded-md whitespace-nowrap shadow-lg z-10">
+                Link copied!
+              </span>
+            )}
+          </div>
         </div>
         <button
           onClick={onClose}
