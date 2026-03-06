@@ -584,21 +584,17 @@ export default function Home() {
           {/* Articles area */}
           <div>
             {/* Mobile feed type tabs */}
-            <div className="flex gap-1.5 overflow-x-auto pb-3 -mx-1 px-1 lg:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex gap-1.5 pb-3 lg:hidden">
               {([
-                { value: 'all' as FeedType, label: 'All' },
                 { value: 'news' as FeedType, label: 'News' },
-                { value: 'blogpost' as FeedType, label: 'Blogposts' },
+                { value: 'regulatory' as FeedType, label: 'Regulatory' },
                 { value: 'judgment' as FeedType, label: 'Case Law' },
                 { value: 'competition' as FeedType, label: 'Competition' },
-                { value: 'regulatory' as FeedType, label: 'Regulatory' },
-                { value: 'legislation' as FeedType, label: 'Legislation' },
-                { value: 'procurement' as FeedType, label: 'Procurement' },
               ]).map(ft => (
                 <button
                   key={ft.value}
                   onClick={() => handleFeedTypeChange(ft.value)}
-                  className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all flex-shrink-0 ${
+                  className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
                     feedType === ft.value
                       ? 'bg-brand-body text-white shadow-sm'
                       : 'bg-white text-brand-muted border border-brand-border'
@@ -611,6 +607,17 @@ export default function Home() {
 
             {/* View toggle + Active filters summary */}
             <div className="flex items-center justify-between pb-3">
+              {/* All pill on mobile, next to view switcher */}
+              <button
+                onClick={() => handleFeedTypeChange('all')}
+                className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all mr-2 lg:hidden ${
+                  feedType === 'all'
+                    ? 'bg-brand-body text-white shadow-sm'
+                    : 'bg-white text-brand-muted border border-brand-border'
+                }`}
+              >
+                All
+              </button>
               <div className="flex items-center gap-2 text-sm text-brand-muted flex-wrap flex-1 min-w-0">
             {(feedType !== 'all' || selectedCategories.length > 0 || selectedJurisdictions.length > 0 || selectedCourts.length > 0 || selectedDocTypes.length > 0 || selectedInstruments.length > 0 || searchQuery || showSaved || dateFilter.preset !== 'all') && (
               <>
