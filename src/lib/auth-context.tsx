@@ -19,7 +19,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, recaptchaToken?: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
   loginError: string | null;
@@ -43,11 +43,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string, recaptchaToken?: string) {
     setLoginError(null);
     setLoginLoading(true);
     try {
-      const data = await loginWithEmail(email, password);
+      const data = await loginWithEmail(email, password, recaptchaToken);
       setUser(data.user);
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : 'Login failed');

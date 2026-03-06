@@ -132,11 +132,11 @@ export async function logout() {
   return res.json();
 }
 
-export async function loginWithEmail(email: string, password: string) {
+export async function loginWithEmail(email: string, password: string, recaptchaToken?: string) {
   const res = await fetch(`${API_BASE}/auth/login`, authFetchOpts({
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, recaptchaToken }),
   }));
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Login failed');
@@ -147,12 +147,12 @@ export async function loginWithEmail(email: string, password: string) {
 
 // ─── Standalone auth API functions ─────────────────────────────
 
-export async function register(email: string, password: string, displayName: string) {
+export async function register(email: string, password: string, displayName: string, recaptchaToken?: string) {
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ email, password, displayName }),
+    body: JSON.stringify({ email, password, displayName, recaptchaToken }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Registration failed');
@@ -173,24 +173,24 @@ export async function verifyEmail(token: string) {
   return data;
 }
 
-export async function resendVerification(email: string) {
+export async function resendVerification(email: string, recaptchaToken?: string) {
   const res = await fetch(`${API_BASE}/auth/resend-verification`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, recaptchaToken }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to resend');
   return data;
 }
 
-export async function forgotPassword(email: string) {
+export async function forgotPassword(email: string, recaptchaToken?: string) {
   const res = await fetch(`${API_BASE}/auth/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, recaptchaToken }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Request failed');

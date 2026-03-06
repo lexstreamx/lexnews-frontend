@@ -4,6 +4,26 @@ import { useState, FormEvent } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { register, forgotPassword, resendVerification } from '@/lib/api';
 
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (cb: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
+}
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+
+async function getRecaptchaToken(action: string): Promise<string | undefined> {
+  if (!RECAPTCHA_SITE_KEY || typeof window === 'undefined' || !window.grecaptcha) return undefined;
+  return new Promise((resolve) => {
+    window.grecaptcha.ready(() => {
+      window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action }).then(resolve).catch(() => resolve(undefined));
+    });
+  });
+}
+
 type View = 'signin' | 'register' | 'forgot' | 'check-email';
 
 export default function LoginScreen() {
@@ -43,7 +63,8 @@ export default function LoginScreen() {
     e.preventDefault();
     if (!email.trim() || !password) return;
     try {
-      await login(email.trim(), password);
+      const token = await getRecaptchaToken('login');
+      await login(email.trim(), password, token);
     } catch {
       // Error handled in auth context
     }
@@ -73,7 +94,8 @@ export default function LoginScreen() {
 
     setRegisterLoading(true);
     try {
-      await register(email.trim(), password, displayName.trim());
+      const token = await getRecaptchaToken('register');
+      await register(email.trim(), password, displayName.trim(), token);
       setRegisteredEmail(email.trim());
       setView('check-email');
     } catch (err) {
@@ -95,7 +117,8 @@ export default function LoginScreen() {
 
     setForgotLoading(true);
     try {
-      await forgotPassword(email.trim());
+      const token = await getRecaptchaToken('forgot_password');
+      await forgotPassword(email.trim(), token);
       setForgotSuccess(true);
     } catch (err) {
       setForgotError(err instanceof Error ? err.message : 'Request failed');
@@ -109,7 +132,8 @@ export default function LoginScreen() {
     setResendLoading(true);
     setResendMessage(null);
     try {
-      await resendVerification(registeredEmail);
+      const token = await getRecaptchaToken('resend_verification');
+      await resendVerification(registeredEmail, token);
       setResendMessage('Verification email sent! Check your inbox.');
     } catch {
       setResendMessage('Failed to resend. Please try again.');
