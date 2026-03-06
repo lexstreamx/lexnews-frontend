@@ -669,38 +669,75 @@ export default function Home() {
 
           {/* Articles area */}
           <div>
-            {/* Mobile feed type tabs */}
-            <div className="flex gap-1.5 pb-3 lg:hidden">
-              {([
-                { value: 'news' as FeedType, label: 'News' },
-                { value: 'regulatory' as FeedType, label: 'Regulatory' },
-                { value: 'judgment' as FeedType, label: 'Case Law' },
-                { value: 'competition' as FeedType, label: 'Competition' },
-              ]).map(ft => (
-                <button
-                  key={ft.value}
-                  onClick={() => handleFeedTypeChange(ft.value)}
-                  className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
-                    feedType === ft.value
-                      ? 'bg-brand-body text-white shadow-sm'
-                      : 'bg-white text-brand-muted border border-brand-border'
-                  }`}
+            {/* Mobile feed tabs (+ lenses if logged in) — single scrollable row */}
+            {isLoggedIn ? (
+              <div className="lg:hidden">
+                <LensBar
+                  lenses={lenses}
+                  activeLensId={activeLensId}
+                  onActivateLens={handleActivateLens}
+                  onDeactivateLens={handleDeactivateLens}
+                  onCreateLens={handleCreateLens}
+                  onDeleteLens={handleDeleteLens}
                 >
-                  {ft.label}
-                </button>
-              ))}
-            </div>
+                  {([
+                    { value: 'news' as FeedType, label: 'News' },
+                    { value: 'regulatory' as FeedType, label: 'Regulatory' },
+                    { value: 'judgment' as FeedType, label: 'Case Law' },
+                    { value: 'competition' as FeedType, label: 'Competition' },
+                  ]).map(ft => (
+                    <button
+                      key={ft.value}
+                      onClick={() => handleFeedTypeChange(ft.value)}
+                      className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap shrink-0 transition-all ${
+                        feedType === ft.value
+                          ? 'bg-brand-body text-white shadow-sm'
+                          : 'bg-white text-brand-muted border border-brand-border'
+                      }`}
+                    >
+                      {ft.label}
+                    </button>
+                  ))}
+                  {lenses.length > 0 && (
+                    <div className="w-px h-5 bg-brand-border/60 shrink-0 mx-0.5" />
+                  )}
+                </LensBar>
+              </div>
+            ) : (
+              <div className="flex gap-1.5 pb-3 lg:hidden">
+                {([
+                  { value: 'news' as FeedType, label: 'News' },
+                  { value: 'regulatory' as FeedType, label: 'Regulatory' },
+                  { value: 'judgment' as FeedType, label: 'Case Law' },
+                  { value: 'competition' as FeedType, label: 'Competition' },
+                ]).map(ft => (
+                  <button
+                    key={ft.value}
+                    onClick={() => handleFeedTypeChange(ft.value)}
+                    className={`px-3 py-2 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
+                      feedType === ft.value
+                        ? 'bg-brand-body text-white shadow-sm'
+                        : 'bg-white text-brand-muted border border-brand-border'
+                    }`}
+                  >
+                    {ft.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
-            {/* Custom Lenses */}
+            {/* Desktop: standalone LensBar */}
             {isLoggedIn && (
-              <LensBar
-                lenses={lenses}
-                activeLensId={activeLensId}
-                onActivateLens={handleActivateLens}
-                onDeactivateLens={handleDeactivateLens}
-                onCreateLens={handleCreateLens}
-                onDeleteLens={handleDeleteLens}
-              />
+              <div className="hidden lg:block">
+                <LensBar
+                  lenses={lenses}
+                  activeLensId={activeLensId}
+                  onActivateLens={handleActivateLens}
+                  onDeactivateLens={handleDeactivateLens}
+                  onCreateLens={handleCreateLens}
+                  onDeleteLens={handleDeleteLens}
+                />
+              </div>
             )}
 
             {/* View toggle + Active filters summary */}

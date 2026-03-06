@@ -10,6 +10,7 @@ interface LensBarProps {
   onDeactivateLens: () => void;
   onCreateLens: (name: string, keywords: string) => Promise<void>;
   onDeleteLens: (id: number) => Promise<void>;
+  children?: React.ReactNode;
 }
 
 export default function LensBar({
@@ -19,12 +20,14 @@ export default function LensBar({
   onDeactivateLens,
   onCreateLens,
   onDeleteLens,
+  children,
 }: LensBarProps) {
   const [showCreate, setShowCreate] = useState(false);
 
   return (
     <>
-      <div className="flex items-center gap-2.5 overflow-x-auto pt-3 pb-2 pr-1 scrollbar-thin">
+      <div className="flex items-center gap-2 overflow-x-auto pt-3 pb-2 pr-1 scrollbar-thin">
+        {children}
         {lenses.map(lens => (
           <LensChip
             key={lens.id}
