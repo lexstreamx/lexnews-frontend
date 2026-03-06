@@ -17,11 +17,16 @@ const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
 
 async function getRecaptchaToken(action: string): Promise<string | undefined> {
   if (!RECAPTCHA_SITE_KEY || typeof window === 'undefined' || !window.grecaptcha) return undefined;
-  return new Promise((resolve) => {
-    window.grecaptcha.ready(() => {
-      window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action }).then(resolve).catch(() => resolve(undefined));
-    });
-  });
+  return Promise.race([
+    new Promise<string | undefined>((resolve) => {
+      try {
+        window.grecaptcha.ready(() => {
+          window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action }).then(resolve).catch(() => resolve(undefined));
+        });
+      } catch { resolve(undefined); }
+    }),
+    new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 5000)),
+  ]);
 }
 
 type View = 'signin' | 'register' | 'forgot' | 'check-email';

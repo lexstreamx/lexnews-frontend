@@ -9,11 +9,11 @@ import ArticleDetailPanel from '@/components/ArticleDetailPanel';
 import DigestSettings from '@/components/DigestSettings';
 import LoginScreen from '@/components/LoginScreen';
 import { useAuth } from '@/lib/auth-context';
-import { fetchArticles, fetchCategories, fetchJurisdictions, markRead } from '@/lib/api';
+import { fetchArticles, fetchCategories, fetchJurisdictions, markRead, changePassword, updatePreferences } from '@/lib/api';
 import { Article, Category, FeedType, ViewMode, DateFilter } from '@/types';
 
 export default function Home() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout, setUser } = useAuth();
   const router = useRouter();
 
   const [articles, setArticles] = useState<Article[]>([]);
@@ -40,6 +40,7 @@ export default function Home() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showDigestSettings, setShowDigestSettings] = useState(false);
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [filtersReady, setFiltersReady] = useState(false);
   const initialCategoriesSet = useRef(false);
   const initialJurisdictionsSet = useRef(false);
@@ -354,21 +355,25 @@ export default function Home() {
                 {/* User info */}
                 <div className="border-t border-[#3A4A2C] pt-3 mt-2">
                   <div className="flex items-center gap-2.5 px-1">
-                    <div className="w-7 h-7 rounded-full bg-brand-accent/20 text-brand-accent flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <button
+                      onClick={() => setShowAccountSettings(true)}
+                      className="w-7 h-7 rounded-full bg-brand-accent/20 text-brand-accent flex items-center justify-center text-xs font-bold flex-shrink-0 hover:bg-brand-accent/30 transition-colors cursor-pointer"
+                      title="Account Settings"
+                    >
                       {(user.display_name || user.email)[0].toUpperCase()}
-                    </div>
+                    </button>
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-xs font-medium truncate">{user.display_name || user.email}</p>
                     </div>
-                    <a
-                      href="https://academy.lexstream.io/start"
+                    <button
+                      onClick={logout}
                       className="p-1.5 rounded-lg text-[#6A7A5C] hover:text-white hover:bg-[#1E2712] transition-colors cursor-pointer"
-                      title="Return to Academy"
+                      title="Sign out"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                       </svg>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -400,7 +405,7 @@ export default function Home() {
                     { value: 'regulatory' as FeedType, label: 'Regulatory', path: 'M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z' },
                     { value: 'legislation' as FeedType, label: 'Legislation', path: 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z' },
                     { value: 'procurement' as FeedType, label: 'Procurement', path: 'M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3H21m-3.75 3H21' },
-                    { value: 'competition' as FeedType, label: 'Competition', path: 'M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z' },
+                    { value: 'competition' as FeedType, label: 'Competition', path: 'M12 12m-1.5 0a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M12 12c-4.418 0-8-1.79-8-4s3.582-4 8-4 8 1.79 8 4-3.582 4-8 4ZM12 12c0-4.418 1.79-8 4-8s4 3.582 4 8-1.79 8-4 8-4-3.582-4-8ZM12 12c0-4.418-1.79-8-4-8S4 7.582 4 12s1.79 8 4 8 4-3.582 4-8Z' },
                   ]).map((ft) => (
                     <div key={ft.value} className="relative group">
                       <button
@@ -493,17 +498,31 @@ export default function Home() {
                   {/* Spacer + user avatar + academy link */}
                   <div className="flex-1" />
                   <div className="w-6 border-t border-[#3A4A2C] my-1" />
+                  {/* Account Settings */}
                   <div className="relative group">
-                    <a
-                      href="https://academy.lexstream.io/start"
+                    <button
+                      onClick={() => setShowAccountSettings(true)}
                       className="p-2 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors cursor-pointer"
-                      title="Return to Academy"
+                    >
+                      <div className="w-5 h-5 rounded-full bg-brand-accent/20 text-brand-accent flex items-center justify-center text-[10px] font-bold">
+                        {(user?.display_name || user?.email || '?')[0].toUpperCase()}
+                      </div>
+                    </button>
+                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Account Settings</span>
+                  </div>
+
+                  {/* Sign out */}
+                  <div className="relative group">
+                    <button
+                      onClick={logout}
+                      className="p-2 rounded-lg text-[#8A9A7C] hover:text-white hover:bg-[#1E2712] transition-colors cursor-pointer"
+                      title="Sign out"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                       </svg>
-                    </a>
-                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Return to Academy</span>
+                    </button>
+                    <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-brand-accent text-white text-xs font-medium rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50">Sign out</span>
                   </div>
                 </div>
               )}
@@ -709,10 +728,225 @@ export default function Home() {
         </div>
       </main>
 
+      {/* Account Settings Modal */}
+      {showAccountSettings && (
+        <AccountSettingsModal
+          user={user}
+          onClose={() => setShowAccountSettings(false)}
+          onUserUpdate={(updatedUser) => setUser(updatedUser)}
+        />
+      )}
+
       {/* Digest Settings Modal */}
       {showDigestSettings && (
         <DigestSettings onClose={() => setShowDigestSettings(false)} />
       )}
+    </div>
+  );
+}
+
+// ─── Account Settings Modal ─────────────────────────────────────
+
+function AccountSettingsModal({ user, onClose, onUserUpdate }: {
+  user: { email: string; display_name?: string | null; auth_provider?: string; category_slugs?: string[]; jurisdiction?: string | null };
+  onClose: () => void;
+  onUserUpdate: (user: ReturnType<typeof Object>) => void;
+}) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwMessage, setPwMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [jurisdictions, setJurisdictions] = useState<string[]>([]);
+  const [selectedCats, setSelectedCats] = useState<string[]>(user.category_slugs || []);
+  const [selectedJur, setSelectedJur] = useState<string>(user.jurisdiction || '');
+  const [prefSaving, setPrefSaving] = useState(false);
+  const [prefMessage, setPrefMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([fetchCategories(), fetchJurisdictions()])
+      .then(([catData, jurData]) => {
+        setCategories(catData.categories || []);
+        setJurisdictions(jurData.jurisdictions || []);
+      })
+      .catch(() => setPrefMessage({ type: 'error', text: 'Failed to load data.' }))
+      .finally(() => setDataLoading(false));
+  }, []);
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setPwMessage({ type: 'error', text: 'Passwords do not match.' });
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPwMessage({ type: 'error', text: 'Password must be at least 8 characters.' });
+      return;
+    }
+    setPwSaving(true);
+    setPwMessage(null);
+    try {
+      await changePassword(currentPassword, newPassword);
+      setPwMessage({ type: 'success', text: 'Password updated successfully.' });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setPwMessage({ type: 'error', text: err instanceof Error ? err.message : 'Failed to change password.' });
+    } finally {
+      setPwSaving(false);
+    }
+  }
+
+  async function handleSavePreferences() {
+    if (selectedCats.length === 0) {
+      setPrefMessage({ type: 'error', text: 'Please select at least one area of law.' });
+      return;
+    }
+    if (!selectedJur) {
+      setPrefMessage({ type: 'error', text: 'Please select a jurisdiction.' });
+      return;
+    }
+    setPrefSaving(true);
+    setPrefMessage(null);
+    try {
+      const data = await updatePreferences(selectedCats, selectedJur);
+      if (data.user) onUserUpdate(data.user);
+      setPrefMessage({ type: 'success', text: 'Preferences saved.' });
+    } catch (err) {
+      setPrefMessage({ type: 'error', text: err instanceof Error ? err.message : 'Failed to save.' });
+    } finally {
+      setPrefSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-brand-border px-6 py-4 rounded-t-2xl flex items-center justify-between">
+          <h2 className="font-heading text-lg font-bold text-brand-heading">Account Settings</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-brand-muted hover:text-brand-body hover:bg-brand-bg transition-colors cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-6">
+          {/* Change Password — only for standalone users */}
+          {user.auth_provider === 'standalone' && (
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <h3 className="font-heading text-sm font-bold text-brand-heading">Change Password</h3>
+              <input
+                type="password"
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-brand-border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/30 focus:border-brand-accent/50"
+                required
+              />
+              <input
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-brand-border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/30 focus:border-brand-accent/50"
+                required
+              />
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-brand-border rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent/30 focus:border-brand-accent/50"
+                required
+              />
+              {pwMessage && (
+                <p className={`text-xs ${pwMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>{pwMessage.text}</p>
+              )}
+              <button
+                type="submit"
+                disabled={pwSaving}
+                className="px-4 py-2 text-sm font-semibold bg-brand-accent text-white rounded-lg hover:bg-brand-accent/90 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {pwSaving ? 'Updating...' : 'Update Password'}
+              </button>
+            </form>
+          )}
+
+          {/* Default Areas of Law */}
+          <div className="space-y-3">
+            <h3 className="font-heading text-sm font-bold text-brand-heading">Default Areas of Law</h3>
+            {dataLoading ? (
+              <div className="flex justify-center py-4">
+                <div className="w-5 h-5 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {categories.map(cat => (
+                  <button
+                    key={cat.slug}
+                    onClick={() => setSelectedCats(prev => prev.includes(cat.slug) ? prev.filter(s => s !== cat.slug) : [...prev, cat.slug])}
+                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer border ${
+                      selectedCats.includes(cat.slug)
+                        ? 'bg-brand-accent text-white border-brand-accent'
+                        : 'bg-white text-brand-body border-brand-border hover:border-brand-accent/40'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            )}
+            {selectedCats.length > 0 && (
+              <p className="text-brand-muted text-xs">{selectedCats.length} area{selectedCats.length !== 1 ? 's' : ''} selected</p>
+            )}
+          </div>
+
+          {/* Default Jurisdiction */}
+          <div className="space-y-3">
+            <h3 className="font-heading text-sm font-bold text-brand-heading">Default Jurisdiction</h3>
+            {dataLoading ? (
+              <div className="flex justify-center py-4">
+                <div className="w-5 h-5 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1.5">
+                {jurisdictions.map(j => (
+                  <button
+                    key={j}
+                    onClick={() => setSelectedJur(j)}
+                    className={`px-2.5 py-2 rounded-md text-xs font-medium transition-all cursor-pointer border text-left ${
+                      selectedJur === j
+                        ? 'bg-brand-accent text-white border-brand-accent'
+                        : 'bg-white text-brand-body border-brand-border hover:border-brand-accent/40'
+                    }`}
+                  >
+                    {j}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Save preferences */}
+          {prefMessage && (
+            <p className={`text-xs ${prefMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>{prefMessage.text}</p>
+          )}
+          <button
+            onClick={handleSavePreferences}
+            disabled={prefSaving || dataLoading}
+            className="w-full px-4 py-2.5 text-sm font-semibold bg-brand-accent text-white rounded-lg hover:bg-brand-accent/90 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {prefSaving ? 'Saving...' : 'Save Preferences'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

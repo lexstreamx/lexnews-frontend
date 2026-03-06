@@ -222,6 +222,29 @@ export async function completeOnboarding(categorySlugs: string[], jurisdiction: 
   return data;
 }
 
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const res = await fetch(`${API_BASE}/auth/change-password`, authFetchOpts({
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  }));
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to change password');
+  return data;
+}
+
+export async function updatePreferences(categorySlugs: string[], jurisdiction: string) {
+  const res = await fetch(`${API_BASE}/auth/preferences`, authFetchOpts({
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categorySlugs, jurisdiction }),
+  }));
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to update preferences');
+  if (data.token) setStoredToken(data.token);
+  return data;
+}
+
 // Digest API functions
 import { DigestPreferences, DigestLog } from '@/types';
 
